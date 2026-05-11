@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# VS Code
+.vscode/.ropeproject/
+*.code-workspace.bak
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# E2 output (generated robot programs)
+*.src
+*.dat
+*.ls
+*.mod
+*.prg

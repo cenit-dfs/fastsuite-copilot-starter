@@ -1,0 +1,41 @@
+{
+   // ── Python / Pylance ────────────────────────────────────────────
+   // TODO: Update this path to match YOUR FASTSUITE E2 installation
+   "python.defaultInterpreterPath": "c:\\Programs\\FASTSUITE_Edition_2_R2026.1\\python.exe",
+   "python.analysis.autoSearchPaths": true,
+   "python.analysis.extraPaths": [
+      // E2 installation root (centypes.py, cenpyDef*.py, defDownload.py, etc.)
+      // TODO: Update this path to match YOUR FASTSUITE E2 installation
+      "c:\\Programs\\FASTSUITE_Edition_2_R2026.1",
+      // E2 API packages (cenpydownload, cenpyolpcore, cenpylib, cenpyupload, cenpymath, cenpyunits)
+      // TODO: Update this path to match YOUR FASTSUITE E2 installation
+      "c:\\Programs\\FASTSUITE_Edition_2_R2026.1\\Lib\\site-packages",
+      // Workspace code (cross-vendor imports)
+      "${workspaceFolder}",
+      "${workspaceFolder}/OLPTranslators"
+   ],
+   "python.analysis.typeCheckingMode": "basic",
+   "python.analysis.diagnosticSeverityOverrides": {
+      // E2 APIs use dynamic attributes; suppress noise
+      "reportMissingModuleSource": "none",
+      "reportMissingTypeStubs": "none",
+      "reportAttributeAccessIssue": "warning"
+   },
+   "python.autoComplete.extraPaths": [
+      // TODO: Update these paths to match YOUR FASTSUITE E2 installation
+      "c:\\Programs\\FASTSUITE_Edition_2_R2026.1",
+      "c:\\Programs\\FASTSUITE_Edition_2_R2026.1\\Lib\\site-packages"
+   ],
+
+   // ── Editor ──────────────────────────────────────────────────────
+   "files.autoSave": "onFocusChange",
+   "[python]": {
+      "editor.insertSpaces": true,
+      "editor.tabSize": 3,
+      "editor.formatOnType": true,
+      "editor.formatOnSave": false
+   },
+   "editor.tabSize": 3,
+   "editor.detectIndentation": true,
+   "editor.renderWhitespace": "boundary"
+}
