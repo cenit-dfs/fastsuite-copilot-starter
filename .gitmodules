@@ -1,3 +1,3 @@
 [submodule "community"]
 	path = community
-	url = x:\\E2Git\\fastsuite-e2-community
+	url = https://github.com/cenit-dfs/fastsuite-e2-community.git
