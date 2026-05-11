@@ -8,6 +8,7 @@ Agent-first development environment for FASTSUITE E2 OLP customization. This tem
 - **VS Code** with [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension
 - **Python 3.12** (bundled with E2 — no separate install needed)
 - **Git** for submodule support
+- **GitHub CoPilot Subscription** Pro or Enterprise recommended
 
 ## Quick Start
 
@@ -112,13 +113,24 @@ docs/<VENDOR>/
 └── current.md      # Change log / working notes
 ```
 
+## Workshop Documentation
+
+New to E2 customization or Git? Start here:
+
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](docs/workshop/getting-started.md) | Install everything, create your repo, first-time setup |
+| [Daily Workflow](docs/workshop/daily-workflow.md) | Create downloaders, test, commit — your everyday loop |
+| [Git Essentials](docs/workshop/git-essentials.md) | Only the Git commands you actually need |
+| [Contributing](docs/workshop/contributing.md) | Share your work back to the community |
+
 ## Contributing to Community
 
 To contribute downloaders, examples, or fixes back to the community:
 
 1. **Fork** the [fastsuite-e2-community](https://github.com/cenit-dfs/fastsuite-e2-community) repository
 2. Add or modify files in your fork
-3. Open a Pull Request
+3. Open a Pull Request — see the [Contributing Guide](docs/workshop/contributing.md) for detailed steps
 
 To contribute skills or docs back to the starter template:
 
