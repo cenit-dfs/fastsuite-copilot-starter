@@ -19,3 +19,9 @@ Desktop.ini
 *.ls
 *.mod
 *.prg
+
+# Exception: golden files are intentionally committed
+!**/tests/golden/**
+
+# Test output (regenerated on each download — compare against golden/)
+**/tests/output/

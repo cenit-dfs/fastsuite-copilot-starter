@@ -1,8 +1,17 @@
 {
    "recommendations": [
+      // Required
       "ms-python.python",
       "ms-python.vscode-pylance",
       "github.copilot",
-      "github.copilot-chat"
+      "github.copilot-chat",
+
+      // Recommended
+      "redhat.vscode-xml",
+      "eamodio.gitlens",
+      "usernamehw.errorlens",
+      "oderwat.indent-rainbow",
+      "ryu1kn.partial-diff",
+      "shd101wyy.markdown-preview-enhanced"
    ]
 }
