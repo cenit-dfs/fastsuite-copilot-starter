@@ -2,6 +2,21 @@
 
 This guide covers the day-to-day work of creating E2 downloaders, uploaders, and technology plugins.
 
+## Which Workflow Is Right for You?
+
+This guide describes two different approaches. Read the table below and follow the one that matches your situation:
+
+| Workflow | Who is it for? | How it works |
+|----------|---------------|--------------|
+| **Workflows 1–4** (this page) | **End users** — project engineers who maintain their own E2 plugins in a single repository | You clone the starter once, create your vendor code, commit, push. One repo holds everything. Branches separate parallel tasks. |
+| **Workflow 5** (bottom of this page) | **CENIT internal developers**, **integrators**, and **power users** who deliver plugins to multiple customers *and* improve the starter/skills for production releases | Each customer gets its own repo. Skill improvements are cherry-picked back to the starter. Agent updates flow downstream via `git merge`. |
+
+> **Not sure?** Start with Workflows 1–4. You can always migrate to the multi-repo approach later — your commit history carries over.
+
+> **All workflows:** Don't forget to [pull updates from the starter repo](#pulling-updates-from-the-starter-repo) periodically to get the latest Copilot skills and docs.
+
+---
+
 ## Understanding the Repository Structure
 
 Your repository has two distinct areas:
@@ -100,9 +115,11 @@ Technology plugins customize the E2 UI (tabs, attributes, events).
 
 ---
 
-## Workflow 4 — Working on Multiple Projects
+## Workflow 4 — Working on Multiple Projects (End Users)
 
-If you work on customizations for different customers, use **Git branches**:
+> **Audience:** End users / project engineers who work in a single repository and need to separate work for different customers or tasks.
+
+Use **Git branches** to keep changes isolated inside the same repository. Each branch is like a separate workspace — you switch between them without losing work:
 
 ```powershell
 # Create a branch for Customer A
@@ -117,7 +134,12 @@ git checkout main
 git checkout -b customer-b/handling
 ```
 
-Each branch keeps its changes isolated. See [Git Essentials](git-essentials.md) for details.
+When you're done with a customer's work, merge the branch into `main` (see [Git Essentials](git-essentials.md)).
+
+**This approach is simple and works well when:**
+- You maintain one set of plugins for yourself or a small number of customers
+- You don't need independent release tags per customer
+- You don't need to push skill/agent improvements back to the starter repo
 
 ---
 
@@ -135,6 +157,162 @@ git push
 ```
 
 You typically only need to do this when CENIT publishes new reference downloaders or fixes.
+
+---
+
+## Pulling Updates from the Starter Repo
+
+> **Important for all end users:** The starter repo receives improvements over time — better Copilot skills, updated API docs, new templates, and bug fixes. You should pull these updates into your repository periodically.
+
+### One-Time Setup: Add the Starter as `upstream`
+
+When you created your repo from the template, GitHub did **not** keep a link back to the original. You need to add it manually (once):
+
+```powershell
+git remote add upstream https://github.com/cenit-dfs/fastsuite-copilot-starter.git
+```
+
+Verify it's set up:
+
+```powershell
+git remote -v
+# origin    https://github.com/<you>/<your-repo>.git (fetch)
+# origin    https://github.com/<you>/<your-repo>.git (push)
+# upstream  https://github.com/cenit-dfs/fastsuite-copilot-starter.git (fetch)
+# upstream  https://github.com/cenit-dfs/fastsuite-copilot-starter.git (push)
+```
+
+### Pulling Updates (anytime)
+
+```powershell
+git fetch upstream
+git merge upstream/main
+```
+
+**Why this works without conflicts:** Your code lives in `OLPTranslators/<VENDOR>/` and `Technologies/<VENDOR>/` — directories that are never modified in the starter. Updates from the starter land in `skills/`, `docs/`, `.github/`, `.vscode/`, etc. The two sets of files don't overlap.
+
+After merging, push the updated state to your own remote:
+
+```powershell
+git push
+```
+
+### What if I see a conflict?
+
+This is rare but can happen if you edited a file that the starter also changed (e.g., you customized `.github/copilot-instructions.md`). VS Code will highlight the conflict — resolve it, then:
+
+```powershell
+git add .
+git commit -m "Merge upstream starter updates"
+git push
+```
+
+See [Git Essentials — conflicts](git-essentials.md#git-says-theres-a-conflict) for details.
+
+---
+
+## Workflow 5 — Multi-Repo Setup (CENIT Internal / Integrators / Power Users)
+
+> **Audience:** CENIT developers who improve the starter repo and skills for production releases, system integrators delivering to multiple customers, and power users who need independent release cycles.
+
+**When to use this instead of branches (Workflow 4):**
+- You maintain the **starter repo itself** (skills, agent files, docs) *and* deliver customer plugins
+- Customers need **independent repositories** with their own release tags (v1.0, v2.0 …)
+- You want to **cherry-pick skill improvements** back to the starter so all customers benefit
+- Different customers have different release cadences or access restrictions
+
+**How it differs from Workflow 4:**
+
+| | Workflow 4 (Branches) | Workflow 5 (Multi-Repo) |
+|-|----------------------|------------------------|
+| Repos | 1 repo, multiple branches | 1 starter + 1 repo per customer |
+| Releases | Tags on `main` | Independent tags per customer repo |
+| Skill fixes | Stay in your repo | Cherry-picked back to starter, flow to all customers |
+| Complexity | Low | Medium — requires commit discipline |
+
+The idea: each customer gets a **separate clone** of the starter. The starter repo is added as an `upstream` remote so you can pull agent/skill updates into any customer repo at any time. Because customer code (`OLPTranslators/<VENDOR>/`, `Technologies/`) and agent files (`skills/`, `docs/`, `.github/`) live in non-overlapping directories, merges from upstream are conflict-free.
+
+### One-Time Setup for a New Customer
+
+```powershell
+# Clone the starter as customer A's project
+git clone <starter-url> customer-a
+cd customer-a
+git submodule update --init
+
+# Rename origin → upstream, add customer's own remote as origin
+git remote rename origin upstream
+git remote add origin <customer-a-repo-url>
+git push -u origin main
+```
+
+Now `upstream` = starter repo, `origin` = customer A's repo.
+
+### Daily Commit Discipline
+
+Keep **two kinds of commits separate** — this is the key discipline that makes everything else work.
+
+**Plugin commits** — customer-specific code:
+```powershell
+git add OLPTranslators/KUKA/ Technologies/ docs/KUKA/
+git commit -m "feat(KUKA): add CIR motion support for customer A"
+```
+
+**Skill/agent commits** — improvements to skills, docs, or Copilot instructions:
+```powershell
+git add skills/ docs/API_Python/ .github/
+git commit -m "skill: clarify event read-ahead pattern in downloader skill"
+```
+
+### Backporting Skill Improvements to the Starter
+
+When you fix or improve a skill while working in a customer repo, cherry-pick those commits back to the starter:
+
+```powershell
+# In the starter repo
+cd ../fastsuite-copilot-starter
+
+# Add customer repo as a local remote (one-time)
+git remote add customer-a ../customer-a
+
+# Fetch and cherry-pick the skill commit(s)
+git fetch customer-a
+git cherry-pick <commit-hash>
+git push origin main
+```
+
+See [Git Essentials — Cherry-Picking](git-essentials.md#cherry-picking--moving-commits-between-repos) for step-by-step details.
+
+### Pulling Starter Updates into a Customer Repo
+
+When the starter gets new skills or docs:
+
+```powershell
+cd ../customer-a
+git fetch upstream
+git merge upstream/main
+# Typically no conflicts — different directories
+git push origin main
+```
+
+### Releasing a Customer Version
+
+Tag releases in the customer repo:
+
+```powershell
+git tag -a v1.0.0 -m "Customer A: KUKA KRC5 + ABB IRC5 release"
+git push origin v1.0.0
+```
+
+### Summary — The Rhythm
+
+| Step | Where | Command |
+|------|-------|---------|
+| Daily coding | `customer-a/` | Commit plugin code and skill fixes **separately** |
+| Push customer work | `customer-a/` | `git push` |
+| Backport skill fixes | `starter/` | `git cherry-pick <hash>` from customer remote |
+| Pull latest agent files | `customer-a/` | `git fetch upstream && git merge upstream/main` |
+| Release customer version | `customer-a/` | `git tag v1.x.x && git push origin v1.x.x` |
 
 ---
 

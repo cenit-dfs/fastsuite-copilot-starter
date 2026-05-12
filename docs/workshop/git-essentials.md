@@ -206,6 +206,157 @@ If E2 generates output files in your repo folder, add them to `.gitignore`:
 
 ---
 
+## Advanced: Cherry-Picking & Moving Commits Between Repos
+
+> **Who needs this?** CENIT internal developers, integrators, and power users following [Workflow 5](daily-workflow.md#workflow-5--multi-repo-setup-cenit-internal--integrators--power-users). If you use a single repository with branches (Workflow 4), you can skip this section entirely.
+
+These operations let you move individual commits between repositories — typically to backport a skill improvement from a customer repo to the starter.
+
+### Cherry-Picking — What It Does
+
+`git cherry-pick` copies a **single commit** from one branch (or repo) and replays it on your current branch. The original commit stays where it is — you get a new commit with the same changes and a new hash.
+
+```
+starter/main:       A ─ B ─ C ─ D'     ← D' is the cherry-picked copy
+customer-a/main:    A ─ B ─ X ─ D ─ Y  ← D is the original skill fix
+```
+
+### Step-by-Step: Cherry-Pick a Commit from Another Repo
+
+**1. Find the commit hash you want to move**
+
+In the source repo (e.g., customer-a):
+
+```powershell
+# Show recent commits — look for your skill fix
+git log --oneline -20
+```
+
+Output:
+```
+f3a1b2c  feat(KUKA): add CIR motion for customer A
+9d4e5f6  skill: clarify event read-ahead pattern      ← this one
+a1b2c3d  feat(ABB): add signal handling
+```
+
+Copy the hash (`9d4e5f6`).
+
+**2. Switch to the target repo and add a remote**
+
+```powershell
+cd ../fastsuite-copilot-starter
+
+# Add the customer repo as a remote (one-time)
+git remote add customer-a ../customer-a
+
+# Fetch its commits
+git fetch customer-a
+```
+
+**3. Cherry-pick the commit**
+
+```powershell
+git cherry-pick 9d4e5f6
+```
+
+If there are **no conflicts**, Git creates a new commit automatically. You're done — push it:
+
+```powershell
+git push origin main
+```
+
+**4. If there are conflicts**
+
+Git will tell you which files conflict. Open them in VS Code — look for the conflict markers:
+
+```
+<<<<<<< HEAD
+your version
+=======
+their version
+>>>>>>> 9d4e5f6
+```
+
+Resolve each file, then:
+
+```powershell
+git add .
+git cherry-pick --continue
+```
+
+To **abort** a cherry-pick that went wrong:
+
+```powershell
+git cherry-pick --abort
+```
+
+### Cherry-Picking Multiple Commits
+
+```powershell
+# Pick a range (oldest..newest, oldest is EXCLUDED)
+git cherry-pick abc1234..def5678
+
+# Pick specific commits (listed in order)
+git cherry-pick abc1234 def5678 ghi9012
+```
+
+### Working with Remotes — Quick Reference
+
+Remotes are named links to other repositories. You can have as many as you need.
+
+```powershell
+# List all remotes
+git remote -v
+
+# Add a remote (local path or URL)
+git remote add customer-a ../customer-a
+git remote add customer-b https://github.com/company/customer-b.git
+
+# Fetch all branches from a remote (does NOT change your files)
+git fetch customer-a
+
+# Remove a remote you no longer need
+git remote remove customer-a
+```
+
+### Tagging Releases
+
+Tags mark specific commits as release points.
+
+```powershell
+# Create an annotated tag
+git tag -a v1.0.0 -m "Customer A: initial KUKA + ABB release"
+
+# Push the tag to the remote
+git push origin v1.0.0
+
+# Push all tags
+git push origin --tags
+
+# List existing tags
+git tag -l
+
+# Check out a tag (read-only, detached HEAD)
+git checkout v1.0.0
+```
+
+### Stashing — Temporarily Shelve Changes
+
+When you need to switch branches but have uncommitted work:
+
+```powershell
+# Save current changes to a stash
+git stash
+
+# Switch branches, do other work, come back...
+git checkout main
+
+# Restore stashed changes
+git stash pop
+```
+
+---
+
 ## Glossary
 
 | Term | What It Means |
@@ -217,6 +368,10 @@ If E2 generates output files in your repo folder, add them to `.gitignore`:
 | **Pull** | Download commits from GitHub to your machine |
 | **Branch** | A parallel line of work |
 | **Merge** | Combine two branches |
+| **Cherry-pick** | Copy a single commit onto your current branch |
+| **Remote** | A named link to another repository (URL or local path) |
+| **Tag** | A named marker on a specific commit (used for releases) |
+| **Stash** | Temporarily shelve uncommitted changes |
 | **Stage** | Mark files to include in the next commit |
 | **Submodule** | An embedded link to another repository |
 | **Diff** | The difference between two versions of a file |
