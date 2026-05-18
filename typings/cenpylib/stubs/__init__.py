@@ -1,0 +1,3 @@
+"""
+COPYRIGHT CENIT AG 2023.
+"""

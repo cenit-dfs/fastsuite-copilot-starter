@@ -4,10 +4,13 @@
    "python.defaultInterpreterPath": "c:\\Programs\\FASTSUITE_Edition_2_R2026.1\\python.exe",
    "python.analysis.autoSearchPaths": true,
    "python.analysis.extraPaths": [
+      // Workspace-committed stubs — works on any machine without E2 installed.
+      // Takes precedence over the E2 installation paths below.
+      "${workspaceFolder}/typings",
       // E2 installation root (centypes.py, cenpyDef*.py, defDownload.py, etc.)
       // TODO: Update this path to match YOUR FASTSUITE E2 installation
       "c:\\Programs\\FASTSUITE_Edition_2_R2026.1",
-      // E2 API packages (cenpydownload, cenpyolpcore, cenpylib, cenpyupload, cenpymath, cenpyunits)
+      // E2 API packages — used as fallback when E2 is installed locally
       // TODO: Update this path to match YOUR FASTSUITE E2 installation
       "c:\\Programs\\FASTSUITE_Edition_2_R2026.1\\Lib\\site-packages",
       // Workspace code (cross-vendor imports)
@@ -18,10 +21,12 @@
    "python.analysis.diagnosticSeverityOverrides": {
       // E2 APIs use dynamic attributes; suppress noise
       "reportMissingModuleSource": "none",
-      "reportMissingTypeStubs": "none",
+      // Stubs are now in typings/ — flag packages that still lack them
+      "reportMissingTypeStubs": "warning",
       "reportAttributeAccessIssue": "warning"
    },
    "python.autoComplete.extraPaths": [
+      "${workspaceFolder}/typings",
       // TODO: Update these paths to match YOUR FASTSUITE E2 installation
       "c:\\Programs\\FASTSUITE_Edition_2_R2026.1",
       "c:\\Programs\\FASTSUITE_Edition_2_R2026.1\\Lib\\site-packages"

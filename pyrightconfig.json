@@ -1,0 +1,19 @@
+{
+   // Pyright / Pylance configuration for FASTSUITE E2 translator development.
+   // typings/ contains committed stubs for all E2 API packages — works without
+   // a local E2 installation (e.g. CI, GitHub Copilot, new team members).
+   "include": [
+      "OLPTranslators",
+      "Technologies"
+   ],
+   "extraPaths": [
+      "typings"
+   ],
+   "pythonVersion": "3.12",
+   "typeCheckingMode": "basic",
+   "reportMissingModuleSource": "none",
+   "reportMissingTypeStubs": "warning",
+   "reportAttributeAccessIssue": "warning",
+   "reportUnknownMemberType": "none",
+   "reportUnknownVariableType": "none"
+}
