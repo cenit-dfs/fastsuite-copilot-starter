@@ -37,5 +37,12 @@
    },
    "editor.tabSize": 3,
    "editor.detectIndentation": true,
-   "editor.renderWhitespace": "boundary"
+   "editor.renderWhitespace": "boundary",
+
+   // ── E2 paths (used by VS Code tasks) ────────────────────────────
+   // TODO: Update these paths to match YOUR FASTSUITE E2 installation
+   // Path where E2 looks for OLP translator scripts
+   "e2.translatorInstallPath": "c:\\Programs\\FASTSUITE_Edition_2_R2026.1\\OLPTranslators",
+   // Path to the E2 download log file
+   "e2.logPath": "c:\\Users\\Public\\FASTSUITE_Edition_2\\Logs\\download.log"
 }

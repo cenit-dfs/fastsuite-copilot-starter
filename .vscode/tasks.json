@@ -1,30 +1,204 @@
 {
    "version": "2.0.0",
    "tasks": [
+
+      // ── Testing ──────────────────────────────────────────────────
+
       {
+         // Walk every file in the output folder and diff it against the golden folder.
+         // Opens code --diff for any file that doesn't match.
          "label": "Compare Output vs Golden",
          "type": "shell",
          "command": "Get-ChildItem -Path '${input:vendorTestOutput}' -File | ForEach-Object { $golden = Join-Path '${input:vendorTestGolden}' $_.Name; if (!(Test-Path $golden)) { Write-Warning \"NO GOLDEN: $($_.Name)\" } elseif (Compare-Object (Get-Content $_ -Raw) (Get-Content $golden -Raw)) { Write-Warning \"DIFF: $($_.Name)\"; code --diff $golden $_.FullName } else { Write-Host \"OK: $($_.Name)\" -ForegroundColor Green } }",
          "problemMatcher": [],
          "group": "test",
-         "presentation": {
-            "reveal": "always",
-            "panel": "shared"
-         }
+         "presentation": { "reveal": "always", "panel": "shared" }
+      },
+
+      {
+         // List every golden file that has no corresponding output yet.
+         // Tells you what programs still need to be downloaded and tested.
+         "label": "Check Missing Outputs",
+         "type": "shell",
+         "command": "$missing = 0; Get-ChildItem -Path '${input:goldenFolder}' -File | ForEach-Object { $out = Join-Path '${input:outputFolder}' $_.Name; if (!(Test-Path $out)) { Write-Warning \"MISSING: $($_.Name)\"; $missing++ } else { Write-Host \"OK: $($_.Name)\" -ForegroundColor Green } }; if ($missing -eq 0) { Write-Host 'All golden files have outputs' -ForegroundColor Green } else { Write-Warning \"$missing file(s) not yet downloaded\" }",
+         "problemMatcher": [],
+         "group": "test",
+         "presentation": { "reveal": "always", "panel": "shared" }
+      },
+
+      {
+         // Quick ad-hoc diff between any two files you specify.
+         "label": "Diff Two Files",
+         "type": "shell",
+         "command": "code --diff '${input:diffFile1}' '${input:diffFile2}'",
+         "problemMatcher": [],
+         "group": "test",
+         "presentation": { "reveal": "silent", "panel": "shared" }
+      },
+
+      // ── Workshop reference ────────────────────────────────────────
+
+      {
+         // Open the reference tree dump and golden output for a named program side by side.
+         // Enter program name only (e.g. PG01_OP) — not the file extension.
+         "label": "Open Program Reference",
+         "type": "shell",
+         "command": "$prog = '${input:programName}'; $ws = '${input:workshopFolder}'; $ref = Join-Path $ws \"reference/$prog.txt\"; $golden = Join-Path $ws \"golden/$prog.as\"; if (Test-Path $ref) { code $ref } else { Write-Warning \"Not found: $ref\" }; if (Test-Path $golden) { code $golden } else { Write-Warning \"Not found: $golden\" }",
+         "problemMatcher": [],
+         "group": "none",
+         "presentation": { "reveal": "silent", "panel": "shared" }
+      },
+
+      {
+         // List every reference/*.txt in a workshop folder that has no corresponding golden/*.as.
+         // Useful when preparing workshop materials to find which programs still need golden files.
+         "label": "Check Golden Coverage",
+         "type": "shell",
+         "command": "$wf = '${input:workshopFolder}'; $missing = 0; Get-ChildItem \"$wf/reference\" -Filter *.txt -ErrorAction Stop | ForEach-Object { $prog = $_.BaseName; $golden = Join-Path \"$wf/golden\" \"$prog.as\"; if (!(Test-Path $golden)) { Write-Warning \"NO GOLDEN: $prog\"; $missing++ } else { Write-Host \"OK: $prog\" -ForegroundColor Green } }; if ($missing -eq 0) { Write-Host 'All reference programs have golden files' -ForegroundColor Green } else { Write-Warning \"$missing program(s) missing golden files\" }",
+         "problemMatcher": [],
+         "group": "none",
+         "presentation": { "reveal": "always", "panel": "shared" }
+      },
+
+      // ── Translator development ────────────────────────────────────
+
+      {
+         // Copy a translator Python file to the E2 installation folder.
+         // E2 picks it up immediately on next download — no restart needed.
+         // Destination is set by e2.translatorInstallPath in settings.json.
+         "label": "Copy Translator to E2",
+         "type": "shell",
+         "command": "$src = '${input:translatorFile}'; $dest = '${config:e2.translatorInstallPath}'; if (!(Test-Path $dest)) { Write-Warning \"Install path not found: $dest — update e2.translatorInstallPath in settings.json\" } else { Copy-Item $src $dest -Force; Write-Host \"Copied $(Split-Path $src -Leaf) → $dest\" -ForegroundColor Green }",
+         "problemMatcher": [],
+         "group": "none",
+         "presentation": { "reveal": "always", "panel": "shared" }
+      },
+
+      {
+         // Create a new translator scaffold from the base template.
+         // Creates OLPTranslators/<VENDOR>/<VENDOR>.py from skills/downloader/templates/base_downloader.py.
+         "label": "Scaffold New Translator",
+         "type": "shell",
+         "command": "$vendor = '${input:newVendorName}'; $destDir = \"OLPTranslators/$vendor\"; New-Item -ItemType Directory -Path $destDir -Force | Out-Null; $dest = \"$destDir/${vendor}.py\"; if (Test-Path $dest) { Write-Warning \"$dest already exists — aborting to avoid overwrite\" } else { Copy-Item 'skills/downloader/templates/base_downloader.py' $dest; Write-Host \"Created $dest\" -ForegroundColor Green; code $dest }",
+         "problemMatcher": [],
+         "group": "none",
+         "presentation": { "reveal": "always", "panel": "shared" }
+      },
+
+      {
+         // Open the E2 download log file in the editor for inspection.
+         // Log path is set by e2.logPath in settings.json.
+         "label": "Open E2 Download Log",
+         "type": "shell",
+         "command": "$log = '${config:e2.logPath}'; if (Test-Path $log) { code $log } else { Write-Warning \"Log not found: $log — update e2.logPath in settings.json\" }",
+         "problemMatcher": [],
+         "group": "none",
+         "presentation": { "reveal": "silent", "panel": "shared" }
+      },
+
+      // ── Repo maintenance (CENIT / power users) ───────────────────
+
+      {
+         // Pull the latest community submodule commit from GitHub.
+         // Run this to get new workshop content, golden files, or community examples.
+         "label": "Update Community Submodule",
+         "type": "shell",
+         "command": "git submodule update --remote community; $hash = git -C community rev-parse --short HEAD; Write-Host \"community → $hash\" -ForegroundColor Green; Write-Host 'Stage and commit the community pointer change if you want to lock this version.' -ForegroundColor Yellow",
+         "problemMatcher": [],
+         "group": "none",
+         "presentation": { "reveal": "always", "panel": "shared" }
+      },
+
+      {
+         // Pull the latest changes from the upstream fastsuite-copilot-starter template repo.
+         // For template users who have cloned this repo and want to receive updates.
+         // Requires an 'upstream' remote: git remote add upstream https://github.com/cenit-dfs/fastsuite-copilot-starter.git
+         "label": "Pull Latest from Template (upstream)",
+         "type": "shell",
+         "command": "$remotes = git remote; if ($remotes -notcontains 'upstream') { Write-Warning 'No upstream remote found.'; Write-Host \"Run once: git remote add upstream https://github.com/cenit-dfs/fastsuite-copilot-starter.git\" -ForegroundColor Yellow } else { git fetch upstream; git merge upstream/master --no-edit; Write-Host 'Pulled latest from upstream template' -ForegroundColor Green }",
+         "problemMatcher": [],
+         "group": "none",
+         "presentation": { "reveal": "always", "panel": "shared" }
+      },
+
+      {
+         // Validate that all SKILL.md files under skills/ have the required frontmatter.
+         // Catches broken skills before commit.
+         "label": "Validate Skill Frontmatter",
+         "type": "shell",
+         "command": "$bad = 0; Get-ChildItem -Path 'skills' -Recurse -Filter SKILL.md | ForEach-Object { $c = Get-Content $_ -Raw; if ($c -notmatch '^---') { Write-Warning \"NO FRONTMATTER: $($_.FullName)\"; $bad++ } elseif ($c -notmatch 'name:') { Write-Warning \"MISSING name: $($_.FullName)\"; $bad++ } elseif ($c -notmatch 'description:') { Write-Warning \"MISSING description: $($_.FullName)\"; $bad++ } else { Write-Host \"OK: $($_.Name)\" -ForegroundColor Green } }; if ($bad -eq 0) { Write-Host 'All skills valid' -ForegroundColor Green } else { Write-Warning \"$bad skill(s) with issues\" }",
+         "problemMatcher": [],
+         "group": "none",
+         "presentation": { "reveal": "always", "panel": "shared" }
       }
+
    ],
+
    "inputs": [
+      // ── Compare Output vs Golden ──
       {
          "id": "vendorTestOutput",
          "type": "promptString",
-         "description": "Path to output folder (e.g. OLPTranslators/KUKA/tests/output)",
-         "default": "OLPTranslators/KUKA/tests/output"
+         "description": "Output folder to compare (e.g. OLPTranslators/KAWASAKI/tests/output)",
+         "default": "OLPTranslators/KAWASAKI/tests/output"
       },
       {
          "id": "vendorTestGolden",
          "type": "promptString",
-         "description": "Path to golden folder (e.g. OLPTranslators/KUKA/tests/golden)",
-         "default": "OLPTranslators/KUKA/tests/golden"
+         "description": "Golden folder to compare against (e.g. OLPTranslators/KAWASAKI/tests/golden)",
+         "default": "OLPTranslators/KAWASAKI/tests/golden"
+      },
+      // ── Check Missing Outputs ──
+      {
+         "id": "goldenFolder",
+         "type": "promptString",
+         "description": "Golden folder (contains expected .as/.src/.mod files)",
+         "default": "OLPTranslators/KAWASAKI/tests/golden"
+      },
+      {
+         "id": "outputFolder",
+         "type": "promptString",
+         "description": "Output folder (contains downloaded files to check)",
+         "default": "OLPTranslators/KAWASAKI/tests/output"
+      },
+      // ── Diff Two Files ──
+      {
+         "id": "diffFile1",
+         "type": "promptString",
+         "description": "First file (left side of diff)"
+      },
+      {
+         "id": "diffFile2",
+         "type": "promptString",
+         "description": "Second file (right side of diff)"
+      },
+      // ── Open Program Reference / Check Golden Coverage ──
+      {
+         "id": "workshopFolder",
+         "type": "promptString",
+         "description": "Workshop folder containing reference/ and golden/ subfolders",
+         "default": "community/workshops/KAWASAKI_ArcWelding"
+      },
+      {
+         "id": "programName",
+         "type": "promptString",
+         "description": "Program name without extension (e.g. PG01_OP)",
+         "default": "PG01_OP"
+      },
+      // ── Copy Translator to E2 ──
+      {
+         "id": "translatorFile",
+         "type": "promptString",
+         "description": "Translator .py file to copy (e.g. OLPTranslators/KAWASAKI/KAWASAKI_E.py)",
+         "default": "OLPTranslators/KAWASAKI/KAWASAKI_E.py"
+      },
+      // ── Scaffold New Translator ──
+      {
+         "id": "newVendorName",
+         "type": "promptString",
+         "description": "Vendor folder name (e.g. KAWASAKI, FANUC, YASKAWA)",
+         "default": "KAWASAKI"
       }
    ]
 }
+
