@@ -8,8 +8,9 @@
 ## Repository Structure
 - **Your code**: `OLPTranslators/<VENDOR>/` and `Technologies/<VENDOR>/`
 - **Community examples**: `community/` (git submodule — read-only reference)
-- **Skills & docs**: `skills/`, `docs/API_Python/`
+- **Skills**: `skills/`
 - **Agent modes**: `AGENTS.md`
+- **API docs**: Obsidian vault via `obsidian-e2` MCP server (see `.vscode/mcp.json`)
 
 ## Repository Hygiene
 - Do not introduce new third-party dependencies unless necessary.
@@ -19,27 +20,27 @@
   - Change log / working notes: `docs/<VENDOR>/current.md`
 
 ## API Documentation Context
-Use the appropriate E2 Python API documentation as context for different work areas:
+Use the `obsidian-e2` MCP server to look up E2 Python API docs. Search the vault for the relevant classes and callbacks.
 
 ### Downloader Work (`OLPTranslators\*\*.py`)
-- **Primary context:** `docs/API_Python/E2_API_Download.md`
-- **Core objects:** `docs/API_Python/E2_API_OlpCore.md`
+- **Primary context:** vault folder `10_API_Reference/Download/` (Download Callback Lifecycle, DULPython* classes)
+- **Core objects:** vault folder `10_API_Reference/OlpCore/` (OlpCorePython* classes, Attributes, Enumerations)
 - Use when working on: vendor-specific download scripts
 - **DO NOT MODIFY:** downloadStarter.py, downloader.py (E2 installation files)
 
 ### Uploader Work (`OLPTranslators\*\*.py`)
-- **Primary context:** `docs/API_Python/E2_API_Upload.md`
-- **Core objects:** `docs/API_Python/E2_API_OlpCore.md`
+- **Primary context:** vault folder `10_API_Reference/Upload/` (Upload Callback Lifecycle, ULPython* classes)
+- **Core objects:** vault folder `10_API_Reference/OlpCore/`
 - Use when working on: vendor-specific upload scripts
 - **DO NOT MODIFY:** uploadStarter.py, uploader.py (E2 installation files)
 
 ### Technology Work (`Technologies\*\...\Scripts\*.py`)
-- **Primary context:** `docs/API_Python/E2_API_Offline_Programming.md`
-- **Core objects:** `docs/API_Python/E2_API_OlpCore.md`
+- **Primary context:** vault folder `10_API_Reference/Technology/` (Technology Callback Lifecycle, Workmethod Callback Lifecycle)
+- **Core objects:** vault folder `10_API_Reference/OlpCore/`
 - Use when working on: callback scripts (PostTechInitAttributes, PostWmSyncPgAttributes, etc.), event scripts, workmethod scripts
 
 ### Report Generation
-- **Primary context:** `docs/API_Python/E2_API_ArcWelding_Report.md`
+- **Primary context:** vault note `10_API_Reference/Reporting/ReportUtility`
 - Use when working on: PDF report generation, ReportUtility customization
 
 ## Documentation Rules

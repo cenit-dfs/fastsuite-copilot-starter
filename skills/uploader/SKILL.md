@@ -11,12 +11,12 @@ An uploader imports vendor-specific robot programs back into the FASTSUITE E2 OL
 
 ## API Reference
 
-- **Primary context**: `docs/API_Python/E2_API_Upload.md`
-- **Core objects**: `docs/API_Python/E2_API_OlpCore.md`
+- **Primary context**: Obsidian vault `10_API_Reference/Upload/` (via `obsidian-e2` MCP)
+- **Core objects**: Obsidian vault `10_API_Reference/OlpCore/` (via `obsidian-e2` MCP)
 
 ## Key Rules
 - Never modify `uploadStarter.py`, `uploader.py` (E2 installation files)
 - Never modify E2 site-packages (`cenpydownload`, `cenpyolpcore`, `cenpylib`, `cenpyupload`)
 - Logger is always a local variable: `logger = operator.GetLogOperator()`
 
-*This skill will be expanded with lifecycle documentation, patterns, and examples. See `docs/API_Python/E2_API_Upload.md` for the full API reference.*
+*This skill will be expanded with lifecycle documentation, patterns, and examples. Use the `obsidian-e2` MCP server to look up `Upload Callback Lifecycle` for the full API reference.*

@@ -1,0 +1,19 @@
+{
+  "servers": {
+    "obsidian-e2": {
+      "type": "http",
+      "url": "http://127.0.0.1:27200/mcp",
+      "headers": {
+        "Authorization": "Bearer ${input:obsidianMcpToken}"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "id": "obsidianMcpToken",
+      "type": "promptString",
+      "description": "MCP Connector bearer token (from Obsidian → Settings → MCP Connector → Token)",
+      "password": true
+    }
+  ]
+}

@@ -260,7 +260,7 @@ git commit -m "feat(KUKA): add CIR motion support for customer A"
 
 **Skill/agent commits** — improvements to skills, docs, or Copilot instructions:
 ```powershell
-git add skills/ docs/API_Python/ .github/
+git add skills/ .github/
 git commit -m "skill: clarify event read-ahead pattern in downloader skill"
 ```
 

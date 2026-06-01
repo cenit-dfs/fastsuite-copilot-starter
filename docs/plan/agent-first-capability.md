@@ -1,5 +1,13 @@
 ## Plan: Agent-First Capability — Full Re-plan
 
+> **Status (2026-06-01):** This plan is now **implemented via the Obsidian MCP vault**.
+> The canonical, consolidated plan lives at:
+> [`vault_fastsuite-e2-customization/00_About/Implementation_Plan.md`](https://github.com/cenit-dfs/vault_fastsuite-e2-customization)
+>
+> This file is retained as historical context. Phases 0–1C below remain valid
+> descriptions of what was done; Phases 2–8 are superseded by the vault's
+> rollout plan (§13) and remote serving strategy (§17).
+
 **TL;DR:** Four pillars — *Precision* (stubs + docstrings), *Patterns* (reference corpus), *Context* (scenarios + technology scripts), *Process* (contribution pipeline back to E2 product). Phases 1 and 3 can start now; Phase 2 unblocks the contribution architecture; Phases 4-8 follow in sequence. The docstrings are the central asset everything else derives from.
 
 ---
@@ -35,8 +43,8 @@ Technology scripts define which events fire, what attributes they carry, and whe
 | Technology | Scope | Location in community repo |
 |------------|-------|---------------------------|
 | **ArcWeldingTechnology/Standard** | Shared scripts: `ArcWeldingTechnology.py`, seam finding, touch sensing workmethod scripts (13 files) | `community/Technologies/ArcWeldingTechnology/Standard/Scripts/` |
-| **ArcWeldingTechnology/<Vendor>** | Vendor-specific: ABB, CLOOS, DAIHEN, FANUC, KAWASAKI, KUKA, Motoman, NEURA, PANASONIC (9 vendors, ~10-28 scripts each) | `community/Technologies/ArcWeldingTechnology/<Vendor>/Standard/Scripts/` |
-| **LaserCuttingTechnology/<Vendor>** | Vendor-specific configs: FANUC, HAITIAN, LASERDYNE, MITSUBISHI, NTC, PRIMA, Siemens, TRUMPF, UniversalLC, Generic (controller settings, tech tabs — no shared scripts) | `community/Technologies/LaserCuttingTechnology/<Vendor>/` |
+| **ArcWeldingTechnology/Vendor** | Vendor-specific: ABB, CLOOS, DAIHEN, FANUC, KAWASAKI, KUKA, Motoman, NEURA, PANASONIC (9 vendors, ~10-28 scripts each) | `community/Technologies/ArcWeldingTechnology/Vendor/Standard/Scripts/` |
+| **LaserCuttingTechnology/Vendor** | Vendor-specific configs: FANUC, HAITIAN, LASERDYNE, MITSUBISHI, NTC, PRIMA, Siemens, TRUMPF, UniversalLC, Generic (controller settings, tech tabs — no shared scripts) | `community/Technologies/LaserCuttingTechnology/<Vendor>/` |
 | **TechnologyCommon** | Auxiliary commands: `ToolpathReport.py`, `CycleTimeDelayCalculation.py`, `DesignChangeProcessGeometriesReportScript.py` | `community/Technologies/TechnologyCommon/Standard/AuxiliaryCommands/` |
 
 **Not committed (no customization scripts):** CavityConservation, Deburring, Drilling, FrictionWelding, Generic, Handling, Inspection, LaserWelding, NailShooting, PlasmaCutting, RemoteLaserWelding, Riveting, Rollerhemming, Routing, Screwing, Sealing, SpotWelding, Spraying, StudWelding, UltrasonicCutting, UltrasonicNdt, WaterjetCutting — these ship with no Python customization.
@@ -137,7 +145,7 @@ Ship the docstrings into the E2 product. Architecture chosen in Phase 2. Additio
 
 ### Phase 6 — Quick-Ref and Validation *(depends on Phase 4)*
 
-Auto-generate `docs/API_Python/quick-ref.md` from the docstrings (script: first docstring line per method → flat Markdown table ordered by lifecycle phase). Define 5 canonical validation tasks — one per domain (basic downloader, arc welding, uploader, technology script, report) — and score agent output using the scenarios from Phase 1C.
+Auto-generate a quick-ref table from the docstrings (script: first docstring line per method → flat Markdown table ordered by lifecycle phase). Define 5 canonical validation tasks — one per domain (basic downloader, arc welding, uploader, technology script, report) — and score agent output using the scenarios from Phase 1C.
 
 **Validation protocol:**
 1. For each Phase 1C scenario: ask the agent to generate a translator from scratch given only the controller manual, the `.txt` tree dump, and a golden file as reference

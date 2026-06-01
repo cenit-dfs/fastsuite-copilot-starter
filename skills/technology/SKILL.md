@@ -26,8 +26,8 @@ Common callback scripts:
 
 ## API Reference
 
-- **Primary context**: `docs/API_Python/E2_API_Offline_Programming.md`
-- **Core objects**: `docs/API_Python/E2_API_OlpCore.md`
+- **Primary context**: Obsidian vault `10_API_Reference/Technology/` (via `obsidian-e2` MCP)
+- **Core objects**: Obsidian vault `10_API_Reference/OlpCore/` (via `obsidian-e2` MCP)
 
 ## Key Rules
 - Logger is always a local variable: `logger = operator.GetLogOperator()`
@@ -61,4 +61,4 @@ value = operator.GetDoubleAttribute("Speed", True).GetValue()
 value = operator.GetBoolAttribute("EnableFeature", True).GetValue()
 ```
 
-*This skill will be expanded with more patterns and examples. See `docs/API_Python/E2_API_Offline_Programming.md` for the full API reference.*
+*This skill will be expanded with more patterns and examples. Use the `obsidian-e2` MCP server to look up `Technology Callback Lifecycle` and `Workmethod Callback Lifecycle` for the full API reference.*

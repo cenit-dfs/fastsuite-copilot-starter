@@ -6,8 +6,8 @@ Agent for creating and modifying OLP downloaders (robot program generators).
 
 ### Scope
 - `OLPTranslators/**/*.py` — vendor-specific download scripts
-- `docs/API_Python/E2_API_Download.md` — Download API reference
-- `docs/API_Python/E2_API_OlpCore.md` — Core object model reference
+- Obsidian vault `10_API_Reference/Download/` — Download API reference (via `obsidian-e2` MCP)
+- Obsidian vault `10_API_Reference/OlpCore/` — Core object model reference (via `obsidian-e2` MCP)
 
 ### Skills
 - `skills/downloader/SKILL.md` — Downloader customization skill
@@ -28,8 +28,8 @@ Agent for Technology UI customization — attributes, tabs, events, workmethods.
 
 ### Scope
 - `Technologies/**/*.py` — technology callback scripts
-- `docs/API_Python/E2_API_Offline_Programming.md` — Technology API reference
-- `docs/API_Python/E2_API_OlpCore.md` — Core object model reference
+- Obsidian vault `10_API_Reference/Technology/` — Technology API reference (via `obsidian-e2` MCP)
+- Obsidian vault `10_API_Reference/OlpCore/` — Core object model reference (via `obsidian-e2` MCP)
 
 ### Skills
 - `skills/technology/SKILL.md` — Technology customization skill
@@ -47,8 +47,8 @@ Agent for creating and modifying OLP uploaders (robot program importers).
 
 ### Scope
 - `OLPTranslators/**/*.py` — vendor-specific upload scripts
-- `docs/API_Python/E2_API_Upload.md` — Upload API reference
-- `docs/API_Python/E2_API_OlpCore.md` — Core object model reference
+- Obsidian vault `10_API_Reference/Upload/` — Upload API reference (via `obsidian-e2` MCP)
+- Obsidian vault `10_API_Reference/OlpCore/` — Core object model reference (via `obsidian-e2` MCP)
 
 ### Skills
 - `skills/uploader/SKILL.md` — Uploader customization skill (planned)

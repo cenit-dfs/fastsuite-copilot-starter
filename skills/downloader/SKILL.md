@@ -16,8 +16,8 @@ A downloader converts the FASTSUITE E2 OLP object tree (programs, operations, mo
 | `community/OLPTranslators/Simple_Python_Translator.py` | **OLP tree dumper** — downloads the complete object tree as `.txt` for analysis. Trigger a download in E2 to get one. |
 | `community/OLPTranslators/KUKA/KUKA_KRC5.py` | **Canonical base downloader** — motion FOLDs, position data, event handling |
 | `community/OLPTranslators/ABB/ABB_IRC5.py` | **Advanced multi-plugin** downloader with technology plugins |
-| `docs/API_Python/E2_API_Download.md` | Full Download API documentation |
-| `docs/API_Python/E2_API_OlpCore.md` | Core object model (attributes, resources, technologies) |
+| Obsidian vault `10_API_Reference/Download/` | Full Download API documentation (via `obsidian-e2` MCP) |
+| Obsidian vault `10_API_Reference/OlpCore/` | Core object model — attributes, resources, technologies (via `obsidian-e2` MCP) |
 | `skills/downloader/templates/base_downloader.py` | Minimal starter template |
 
 ---

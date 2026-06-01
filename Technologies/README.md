@@ -20,4 +20,4 @@ Technologies/
 
 1. Create the folder structure for your technology and vendor
 2. See `skills/technology/SKILL.md` for the customization guide
-3. Reference `docs/API_Python/E2_API_Offline_Programming.md` for the full API
+3. Use the `obsidian-e2` MCP server to look up `Technology Callback Lifecycle` for the full API

@@ -64,7 +64,7 @@ Or switch to the **E2Downloader** agent mode for focused downloader work.
 │   │   └── SKILL.md                   # Technology customization guide
 │   └── uploader/
 │       └── SKILL.md                   # Uploader guide (planned)
-├── docs/API_Python/                   # E2 Python API documentation
+├── docs/                              # Vendor docs, plans, workshop guides
 ├── OLPTranslators/                    # YOUR vendor-specific downloaders/uploaders
 │   └── .instructions.md              # Auto-applied coding rules
 ├── Technologies/                      # YOUR technology plugins
