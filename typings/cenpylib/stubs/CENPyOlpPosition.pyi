@@ -206,6 +206,14 @@ class CENPyOlpPosition:
       """
       ...
    
+   def GetWorldMatrix(self) -> CENPyOlpMatrix:
+      """Get the world matrix of the position.
+      
+      Returns:
+         World matrix.
+      """
+      ...
+   
    @overload
    def TranslatePosition(self, x: float, y: float, z: float, positionRelation: int):
       """Translates the toolpath element position locally in given direction.

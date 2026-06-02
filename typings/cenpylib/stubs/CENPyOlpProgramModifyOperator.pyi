@@ -11,6 +11,7 @@ from .CENPyOlpEventHandler import *
 from .CENPyOlpInterpolationHandler import *
 from .CENPyOlpLogOperator import *
 from .CENPyOlpMatrix import *
+from .CENPyOlpProcessGeometryOperator import *
 from .CENPyOlpProgram import *
 from .CENPyOlpTeachHandler import *
 from .CENPyOlpTpElement import *
@@ -109,6 +110,14 @@ class CENPyOlpProgramModifyOperator:
       
       Returns:
          Newly created matrix
+      """
+      ...
+   
+   def GetAllProcessGeometries(self) -> list[CENPyOlpProcessGeometryOperator]:
+      """Returns all process geometries.
+      
+      Returns:
+         List of CENPyOlpProcessGeometryOperator process geometries.
       """
       ...
    

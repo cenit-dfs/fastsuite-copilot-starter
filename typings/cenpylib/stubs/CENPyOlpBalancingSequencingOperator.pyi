@@ -69,12 +69,40 @@ class CENPyOlpBalancingSequencingOperator:
       """
       ...
    
-   def MoveOperationsToController(self, operationsToMove: list, refController: CENPyOlpController) -> int:
+   def MoveOperationsToController(self, operationsToMove: list, refController: CENPyOlpController, splitWithCopy: bool=False) -> int:
       """Moves the given operations to the active program of the specified controller.
       If the controller has no active program yet, a new default program is created.
       
       Args:
          operationsToMove: List of operations CENPyOlpOperation objects to move.
+         refController: Target controller whose active program receives the operations.
+         splitWithCopy: Make a copy (do not remove operation from the source)
+      
+      Returns:
+         ERR_NO_ERROR (0) on success, an error code otherwise.
+      """
+      ...
+   
+   def MoveOperationsToProgram(self, operationsToMove: list, refProgram: CENPyOlpProgram, splitWithCopy: bool=False) -> int:
+      """Moves the given operations to the specified program.
+      If the program is not active, the operations will still be moved to it.
+      
+      Args:
+         operationsToMove: List of CENPyOlpOperation objects to move.
+         refProgram: Target program to which the operations will be moved.
+         splitWithCopy: Make a copy (do not remove operation from the source)
+      
+      Returns:
+         ERR_NO_ERROR (0) on success, an error code otherwise.
+      """
+      ...
+   
+   def CopyOperationsToController(self, operationsToCopy: list, refController: CENPyOlpController) -> int:
+      """Copies the given operations to the active program of the specified controller.
+      If the controller has no active program yet, a new default program is created.
+      
+      Args:
+         operationsToCopy: List of operations CENPyOlpOperation objects to copy.
          refController: Target controller whose active program receives the operations.
       
       Returns:
@@ -82,13 +110,13 @@ class CENPyOlpBalancingSequencingOperator:
       """
       ...
    
-   def MoveOperationsToProgram(self, operationsToMove: list, refProgram: CENPyOlpProgram) -> int:
-      """Moves the given operations to the specified program.
-      If the program is not active, the operations will still be moved to it.
+   def CopyOperationsToProgram(self, operationsToCopy: list, refProgram: CENPyOlpProgram) -> int:
+      """Copies the given operations to the specified program.
+      If the program is not active, the operations will still be copied to it.
       
       Args:
-         operationsToMove: List of CENPyOlpOperation objects to move.
-         refProgram: Target program to which the operations will be moved.
+         operationsToCopy: List of CENPyOlpOperation objects to copy.
+         refProgram: Target program to which the operations will be copied.
       
       Returns:
          ERR_NO_ERROR (0) on success, an error code otherwise.

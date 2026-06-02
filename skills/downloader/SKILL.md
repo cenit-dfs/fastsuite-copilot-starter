@@ -499,7 +499,115 @@ class MyDownloader(Downloader):
 
 6. **Logger in wrong scope** — Logger must be a local variable: `logger = operator.GetLogOperator()`. It is NOT available in utility functions or class-level methods that don't receive `operator`.
 
-7. **`GetIndex()` returning large values** — Tool/Base profile indices > 128 mean "not mapped". Check and log an error.
+7. **BoolAttribute.GetValue() returns Python `bool`, NOT a string** — `True == 'True'` evaluates to `False` in Python. Always use `str(attr.GetValue()) == 'True'` when comparing bool attribute values. This is the #1 silent bug in downloaders — no error, just wrong output.
+
+8. **Emitting motion settings inline instead of buffered** — Most controllers need SPEED/ACCURACY/CP emitted as separate lines BEFORE the motion. Use a buffered pattern: store pending values from events, flush before each motion, only emit when value changes (deduplicate via `last*` tracking).
+
+9. **Not read-ahead scanning eventsAfter** — Technology events (ArcOn, ArcOff, Accuracy Off) attached to a motion via `eventsAfter` affect how that motion should be output. Scan `motion.GetEventsAfter()` BEFORE outputting the motion to detect LWS/LWE/mode changes.
+
+10. **`GetIndex()` returning large values** — Tool/Base profile indices > 128 mean "not mapped". Check and log an error.
+
+---
+
+## Advanced Patterns (Lessons from Production Downloaders)
+
+### Pattern: Buffered Motion Data (Pending → Flush)
+
+Instead of emitting SPEED/ACCURACY inline with motions, buffer them and flush once before each motion:
+
+```python
+def __init__(self):
+   self.pendingSpeed = None
+   self.pendingAccel = None
+   self.pendingAccuracy = None
+   self.lastSpeed = None
+   self.lastAccuracy = None
+
+# Events set pending values:
+def _handleSpeed(self, event):
+   self.pendingSpeed = ...  # extract from event attributes
+
+# Before each motion, flush:
+def _flushPendingMotionData(self):
+   if self.pendingSpeed is not None:
+      if self.pendingSpeed != self.lastSpeed:
+         self.Source.append('SPEED ' + self.pendingSpeed)
+         self.lastSpeed = self.pendingSpeed
+      self.pendingSpeed = None
+   # Same for accuracy, acceleration, CP, etc.
+```
+
+**Benefits**: Deduplicates redundant output, enables conditional suppression (e.g., suppress SPEED during welding), maintains correct output order regardless of event arrival order.
+
+### Pattern: Read-Ahead for Technology Events
+
+Technology events (ArcOn, ArcOff) are attached as `eventsAfter` on a motion. You often need to know about them BEFORE outputting the motion (e.g., to decide motion type, suppress settings, or format the motion line differently):
+
+```python
+def HandleMotion(self, operator, motion):
+   # Read-ahead: check what comes AFTER this motion
+   hasArcOn = False
+   hasArcOff = False
+   for evt in motion.GetEventsAfter():
+      if evt.GetName() == 'ArcOnEvent':
+         hasArcOn = True
+      elif evt.GetName() == 'ArcOffEvent':
+         hasArcOff = True
+
+   # Now output motion with full knowledge of context
+   self._flushPendingMotionData()
+   motionLine = self._buildMotionLine(motion, hasArcOn, hasArcOff)
+   self.Source.append(motionLine)
+
+   # THEN let HandleEvent fire for eventsAfter (lifecycle handles this)
+```
+
+### Pattern: Weld Section State Machine
+
+For arc welding downloaders, track weld state to suppress/modify output:
+
+```python
+# State transitions:
+# ArcOnEvent fires  → arcOnActive=True, arcOnIsFirstMotion=True
+# Next HandleMotion → use arcOnIsFirstMotion for LWS line, then set False
+# HandleMotion (after output, before eventsAfter) → if motion has ArcOff in eventsAfter: arcOnActive=False
+# ArcOffEvent fires → arcOnActive already False, emit LWE line
+
+# Suppression rules (vary by vendor):
+# - SPEED: often suppressed during welding (welder controls speed)
+# - ACCURACY: often suppressed during welding (continuous path assumed)
+# - CP: may be forced ON during welding, OFF otherwise
+```
+
+### Pattern: Euler Conversion
+
+E2 stores orientations in `Euler_XYZs` (static XYZ). Convert to vendor convention:
+
+```python
+from cenpymath.Euler.Converter import ConvertEuler
+from centypes import Euler_XYZs, Euler_ZYZr  # or vendor's convention
+
+rx, ry, rz = position.GetOrientation()  # degrees, Euler_XYZs
+a, b, c = ConvertEuler(rx, ry, rz, Euler_XYZs, Euler_ZYZr)
+```
+
+Common vendor conventions:
+- KUKA: `Euler_ZYZr` (A, B, C)
+- ABB: Quaternion (convert separately)
+- FANUC: `Euler_XYZr` (W, P, R)
+- Kawasaki: `Euler_ZYZr` (O, A, T)
+
+### Pattern: Numeric Formatting Without Trailing Zeros
+
+Many controllers require clean numeric output (no `.0` on integers):
+
+```python
+def _fmtRound1(self, value):
+   """Round to 1 decimal, strip trailing .0"""
+   r = round(value, 1)
+   return str(int(r)) if r == int(r) else str(r)
+   # 0.0 → "0", 4.6 → "4.6", 100.0 → "100"
+```
 
 ---
 

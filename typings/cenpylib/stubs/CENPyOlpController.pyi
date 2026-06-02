@@ -139,6 +139,14 @@ class CENPyOlpController:
       """
       ...
    
+   def GetActiveBaseFrameName(self) -> str:
+      """Get the active base frame name.
+      
+      Returns:
+         Active base frame name.
+      """
+      ...
+   
    def GetActiveToolResourceName(self) -> str:
       """Get the resource name of the active tool.
       

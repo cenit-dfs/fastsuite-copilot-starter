@@ -3,7 +3,10 @@ Automatically generated module. COPYRIGHT CENIT AG 2026.
 """
 
 from typing import overload
+from .CENPyOlpOperation import *
+from .CENPyOlpOperationGroup import *
 from .CENPyOlpPosition import *
+from .CENPyOlpProgram import *
 from .CENPyOlpTpElement import *
 
 class CENPyOlpTeachHandler:
@@ -135,6 +138,45 @@ class CENPyOlpTeachHandler:
       
       Returns:
          True if successful, otherwise False.
+      """
+      ...
+   
+   @overload
+   def InsertAuxiliaryOperation(self, targetProgram: CENPyOlpProgram, referenceOperation: CENPyOlpOperation, iInsertPosition: int) -> CENPyOlpOperation:
+      """Inserts a new auxiliary operation into the specified target program relative to a reference operation within the same group.
+      
+      Args:
+         targetProgram: Target program in which the auxiliary operation will be inserted.
+         referenceOperation: Reference operation used to determine the insertion location. If reference is None, the operation will be added as the last element of the program.
+         iInsertPosition: Insert position in relation to the reference operation.
+      
+      Returns:
+         Newly created auxiliary operation. None if the insertion failed.
+      """
+      ...
+   
+   @overload
+   def InsertAuxiliaryOperation(self, targetProgram: CENPyOlpProgram, referenceOperationGroup: CENPyOlpOperationGroup, iInsertPosition: int) -> CENPyOlpOperation:
+      """Inserts a new auxiliary operation into the specified target program relative to a reference operation group, into a new group.
+      
+      Args:
+         targetProgram: Target program in which the auxiliary operation will be inserted.
+         referenceOperationGroup: Reference operation group used to determine the insertion location. If reference is None, the operation will be added as the last element of the program.
+         iInsertPosition: Insert position in relation to the reference operation group.
+      
+      Returns:
+         Newly created auxiliary operation. None if the insertion failed.
+      """
+      ...
+   
+   def GetCycleReferenceToolpathElement(self, tpElement: CENPyOlpTpElement) -> CENPyOlpTpElement:
+      """Gets reference toolpath element of a cycle toolpath element.
+      
+      Args:
+         tpElement: Cycle toolpath element.
+      
+      Returns:
+         Reference toolpath element of a cycle toolpath element or None
       """
       ...
    

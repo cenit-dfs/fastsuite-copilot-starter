@@ -50,6 +50,7 @@ from .nls import *
 from .ui import *
 import os, locale
 import math
+import numpy as np
 import tkinter as tk
 
 # import custom libraries
@@ -407,7 +408,7 @@ class ReportUtility(FPDF):
          portrLands : if Report is created in Portrait or Landscape Mode
       '''
       self.set_font(self.__fontType, size=int(int(self.__fontSize)*1.5))
-      self.set_font(style=self.__fontStyle)
+      self.set_font(self.__fontType, style=self.__fontStyle)
       self.cell(80, 10, self.__NLS.getNLS("title","Fastsuite E2 Report*"), border=0, align="L")
       # Performing a line break:
       self.ln(2)
@@ -975,7 +976,7 @@ class ReportUtility(FPDF):
       self.set_draw_color(0, 0, 0)
       self.set_line_width(0.3)
       self.set_font(self.__fontType, size=int(self.__fontSize))
-      self.set_font(style=self.__fontStyle)
+      self.set_font(self.__fontType, style=self.__fontStyle)
       nrColumns = len(headings)
       totalWidth = 0
       for col_width, heading in zip(colWidths, headings):
@@ -985,7 +986,7 @@ class ReportUtility(FPDF):
       # Color and font restoration:
       self.set_fill_color(233, 233, 233)
       self.set_text_color(0)
-      self.set_font()
+      self.set_font(self.__fontType, style=self.__fontStyle)
       fill = False
       for row in rows:
          rowCols = len(row)
@@ -1216,10 +1217,20 @@ class ReportUtility(FPDF):
       Returns:
          double: length : the linear Length between the last and current TPE
       """
-      lastTpeCoordinates = teachHandler.GetTpElementPosition(lastTpE, POSRELATION_WORKPIECEROOT).GetCoordinates()
-      currentTpeCoordinates = teachHandler.GetTpElementPosition(opTpe, POSRELATION_WORKPIECEROOT).GetCoordinates()
-      length = abs(math.sqrt((lastTpeCoordinates[0]-currentTpeCoordinates[0])**2 + (lastTpeCoordinates[1]-currentTpeCoordinates[1])**2 + (lastTpeCoordinates[2]-currentTpeCoordinates[2])**2))
-      return length
+      if (opTpe.GetMotionType() == MOTIONTYPE_PTP):
+         # use the Positions for PTP Motions, because Matrix Position is not correct for PTP Motions (depends on the robot configuration)
+         tpeMatrixLastTPE = teachHandler.GetTpElementPosition(lastTpE, POSRELATION_WORKPIECEROOT).GetCoordinates()
+         tpeMatrixCurrTPE = teachHandler.GetTpElementPosition(opTpe, POSRELATION_WORKPIECEROOT).GetCoordinates()
+      else:
+         # use the Matrix Positions for LIN Motions, because the it is correct for LIN Motions
+         tpeMatrixLastTPE = lastTpE.GetMatrix().GetPosition().GetXYZ()
+         tpeMatrixCurrTPE = opTpe.GetMatrix().GetPosition().GetXYZ()
+
+      lengthM = abs(math.sqrt((tpeMatrixLastTPE[0]-tpeMatrixCurrTPE[0])**2 + (tpeMatrixLastTPE[1]-tpeMatrixCurrTPE[1])**2 + (tpeMatrixLastTPE[2]-tpeMatrixCurrTPE[2])**2))
+      lengthM = float(f"{lengthM:.4f}")
+      #self.__logging.LogInfo("... TPE LIN Length MAT: " + str(opTpe.GetName()) + "  =" + str(lengthM))
+
+      return lengthM
    
    # ==               ==========================================================================================
    def calcCircLength(self, teachHandler, lastTpE, opTpe):
@@ -1234,71 +1245,65 @@ class ReportUtility(FPDF):
       Returns:
          double: length : the circular Length between the last and current TPE
       """
-      # get arc end points and via point coordinates
-      lastTpeCoordinates = teachHandler.GetTpElementPosition(lastTpE, POSRELATION_BASEFRAME).GetCoordinates()
-      viaPointCoords = teachHandler.GetTpElementPosition(opTpe, POSRELATION_BASEFRAME).GetViaPointCoordinates()
-      currentTpeCoordinates = teachHandler.GetTpElementPosition(opTpe, POSRELATION_BASEFRAME).GetCoordinates()
-
-      # calculates chord of the circle throught arc end points
-      chord = abs(math.sqrt((lastTpeCoordinates[0]-currentTpeCoordinates[0])**2 + (lastTpeCoordinates[1]-currentTpeCoordinates[1])**2 + (lastTpeCoordinates[2]-currentTpeCoordinates[2])**2))
       
-      # calculates vectors a (through first end point and via point) and b (through via point and second end point):
-      vec1 = self.getVector(lastTpeCoordinates, viaPointCoords)
-      vec2 = self.getVector(viaPointCoords, currentTpeCoordinates)
+      tpeMatrixLastTPE = lastTpE.GetMatrix().GetPosition().GetXYZ()
+      tpeMatrixCurrTPE = opTpe.GetMatrix().GetPosition().GetXYZ()
+      tpeViaMatrixCurrTPE = opTpe.GetViaPointMatrix().GetPosition().GetXYZ()
+      lengthM = self.arc_length_from_three_points(tpeMatrixLastTPE, tpeMatrixCurrTPE, tpeViaMatrixCurrTPE)
+      lengthM = float(f"{lengthM:.4f}")
+      #self.__logging.LogInfo("... TPE CIR Length MAT: " + str(opTpe.GetName()) + "  =" + str(lengthM))
 
-      # calculates vector length: |a|, |b|
-      vec1Length = self.getVectorLength(vec1)
-      vec2Length = self.getVectorLength(vec2)
-
-      # calculates vector scalar : a*b
-      vecScalar = self.getVectorScalar(vec1, vec2)
-
-      # calculates angle in via point between vectors a and b : 2*acos(a*b/|a|*|b|) in radians
-      gamma = 2 * math.acos(vecScalar/(vec1Length * vec2Length))
-
-      # calculates circle radius
-      radius = chord/(2 * math.sin(gamma/2))
-
-      # calculates arc length = alfa*r 
-      return gamma * radius
-
-   def getVector(self, point1, point2):
-      """
-      Gets vector through two points
+      return lengthM
       
-      Args:
-         point1: First point
-         point2: Second point
-      
-      Returns:
-         double: the Vector between the two Points
-      """
-      return [(point2[0]-point1[0]), (point2[1]-point1[1]), (point2[2]-point1[2])]
+   # ==               ==========================================================================================
+   def arc_length_from_three_points(self, p1, p2, p3):
+    # Convert to numpy arrays
+    p1 = np.array(p1)
+    p2 = np.array(p2)
+    p3 = np.array(p3)
 
-   def getVectorLength(self, vector):
-      """
-      Calculates vector length
-      
-      Args:
-         vector: The vector to calculate the length for
-      
-      Returns:
-         double: the Vector Length
-      """
-      return math.sqrt( vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2])
+    # Calculate the plane normal
+    v1 = p2 - p1
+    v2 = p3 - p1
+    normal = np.cross(v1, v2)
+    normal = normal / np.linalg.norm(normal)
 
-   def getVectorScalar(self, vector1, vector2):
-      """
-      Calculates vector scalar
-      
-      Args:
-         vector1: The first vector 
-         vector2: The second vector 
-      
-      Returns:
-         double: the scalar Product of the two given Vectors
-      """
-      return vector1[0]*vector2[0] + vector1[1]*vector2[1] + vector1[2]*vector2[2]
+    # Calculate circle center
+    def perp_bisector(pa, pb):
+        mid = (pa + pb) / 2
+        direction = np.cross(normal, pb - pa)
+        direction = direction / np.linalg.norm(direction)
+        return mid, direction
+
+    m1, d1 = perp_bisector(p1, p2)
+    m2, d2 = perp_bisector(p1, p3)
+
+    # Solve for intersection (center)
+    # m1 + t1*d1 = m2 + t2*d2
+    A = np.column_stack((d1, -d2))
+    b = m2 - m1
+    t, _ = np.linalg.lstsq(A, b, rcond=None)[0:2]
+    center = m1 + t[0]*d1
+
+    # Radius
+    radius = np.linalg.norm(center - p1)
+
+    # Angle between (center->p1) and (center->p2)
+    v1 = p1 - center
+    v2 = p2 - center
+    angle = math.acos(np.clip(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)), -1.0, 1.0))
+
+    # Check direction using via point
+    v3 = p3 - center
+    sign = np.sign(np.dot(np.cross(v1, v2), v3))
+    if sign < 0:
+        angle = 2 * math.pi - angle
+
+    # Arc length
+    return radius * angle
+
+# Example usage:
+# length = arc_length_from_three_points(lastTpeCoordinates, currentTpeCoordinates, viaPointCoords)
       
    # ==               ==========================================================================================
    def saveReportAs(self, defaultFileName: str, apppath: str):

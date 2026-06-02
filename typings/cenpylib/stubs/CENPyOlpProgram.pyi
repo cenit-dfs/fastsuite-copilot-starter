@@ -142,3 +142,25 @@ class CENPyOlpProgram:
       """
       ...
    
+   def DeleteOperation(self, operation: CENPyOlpOperation) -> bool:
+      """Deletes the specified operation from the program.
+      
+      Args:
+         operation: The operation to delete, represented as a CENPyOlpOperation object.
+      
+      Returns:
+         True if the operation was successfully deleted, otherwise False.
+      """
+      ...
+   
+   def DeleteOperationGroup(self, operationGroup: CENPyOlpOperationGroup) -> bool:
+      """Deletes the specified operation group from the program.
+      
+      Args:
+         operationGroup: The operation group to delete, represented as a CENPyOlpOperationGroup object.
+      
+      Returns:
+         True if the operation group was successfully deleted, otherwise False.
+      """
+      ...
+   

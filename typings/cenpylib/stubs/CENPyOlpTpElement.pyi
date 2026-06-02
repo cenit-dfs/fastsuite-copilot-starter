@@ -138,6 +138,14 @@ class CENPyOlpTpElement:
       """
       ...
    
+   def GetViaPointMatrix(self) -> CENPyOlpMatrix:
+      """Gets the current matrix of the via point of the toolpath element.
+      
+      Returns:
+         Current matrix.
+      """
+      ...
+   
    def GetInitialPathMatrix(self) -> CENPyOlpMatrix:
       """Get the initial path matrix which has been saved after PathCompute but before AlignmentCompute.
       
@@ -211,6 +219,19 @@ class CENPyOlpTpElement:
       
       Returns:
          Matrix relative to the given base frame index.
+      """
+      ...
+   
+   def GetStateMatrixByType(self, computeStateMatrix: int, unaligned: bool=False, worldMatrix: bool=False) -> CENPyOlpMatrix:
+      """Gets the matrix of the toolpath element based on the specified computation state, alignment, and coordinate system options.
+      
+      Args:
+         computeStateMatrix: The ComputeStateMatrix represents type of computation state matrix to retrieve.
+         unaligned: If True, returns the matrix without alignment information applied; if False, returns the aligned matrix. Default is False.
+         worldMatrix: If True, returns the matrix in world coordinates; if False, returns the matrix relative to the base frame. Default is False.
+      
+      Returns:
+         Pointer to the IOlpMatrix representing the requested computation state, or None if the matrix type is invalid or unavailable.
       """
       ...
    

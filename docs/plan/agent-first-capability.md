@@ -1,14 +1,22 @@
 ## Plan: Agent-First Capability — Full Re-plan
 
-> **Status (2026-06-01):** This plan is now **implemented via the Obsidian MCP vault**.
-> The canonical, consolidated plan lives at:
-> [`vault_fastsuite-e2-customization/00_About/Implementation_Plan.md`](https://github.com/cenit-dfs/vault_fastsuite-e2-customization)
+> **Status (2026-06-02):** Phases 0–1C done. Phase 3 (docstring guide) done.
+> Phase 2 (stub generator) answered — stubs are auto-generated from C++ headers.
+> Phases 4–8 superseded by the vault plan with revised priorities below.
 >
-> This file is retained as historical context. Phases 0–1C below remain valid
-> descriptions of what was done; Phases 2–8 are superseded by the vault's
-> rollout plan (§13) and remote serving strategy (§17).
+> **Consolidated plan:** See "Priority Actions" at the bottom of this file.
+> The vault's `Implementation_Plan.md` is the canonical rollout plan.
+> This file retained as historical context + revised priority list.
 
-**TL;DR:** Four pillars — *Precision* (stubs + docstrings), *Patterns* (reference corpus), *Context* (scenarios + technology scripts), *Process* (contribution pipeline back to E2 product). Phases 1 and 3 can start now; Phase 2 unblocks the contribution architecture; Phases 4-8 follow in sequence. The docstrings are the central asset everything else derives from.
+**Key Learning (2026-06-02 Kawasaki Downloader Session):**
+The agent produced a 1000-line production downloader with zero Python errors in a single session using:
+- `typings/` stubs (95% of API reference needs)
+- `community/scenarios/` golden files + reference dumps (ground truth)
+- `skills/downloader/SKILL.md` (lifecycle + patterns)
+- `.instructions.md` scoped rules (auto-injected context)
+
+The MCP vault was used ~5% — only for lifecycle callback conceptual docs.
+This fundamentally shifts priorities: **patterns > API signatures > docstrings**.
 
 ---
 
@@ -185,3 +193,48 @@ Full "agent writes technology scripts" capability — a separate domain from dow
 2. **Phase 1C:** Generate test scenarios (user doing this in E2 now)
 3. **Phase 3:** Draft the docstring style guide for review
 4. **Phase 2:** Request E2 source read access on Azure DevOps
+
+---
+
+## Consolidated Priority List (revised 2026-06-02)
+
+Prioritized by **impact on agentic customization quality**, informed by the Kawasaki session.
+
+### Tier 1 — Highest Impact (do next)
+
+| # | Action | Impact | Location |
+|---|--------|--------|----------|
+| 1 | **More vendor scenarios** (FANUC, KUKA, ABB) | Each new scenario = training data + validation harness. The single most impactful thing for new downloaders. | `community/scenarios/` |
+| 2 | **Technology stubs** — create `.pyi` for tech operator APIs | Unblocks agent-assisted technology scripting. Currently zero IDE support. | `typings/cenpyolpcore/stubs/` (new files) |
+| 3 | **Expand `skills/technology/SKILL.md`** | Technology scripting has no patterns/lifecycle equivalent to downloader SKILL.md | `skills/technology/` |
+
+### Tier 2 — High Impact (soon after)
+
+| # | Action | Impact | Location |
+|---|--------|--------|----------|
+| 4 | **Vault patterns for technology** | Enable MCP-served tech knowledge | Vault `20_Patterns/Technology/` |
+| 5 | **Uploader SKILL.md expansion** | Upload is thin — lifecycle + patterns needed | `skills/uploader/SKILL.md` |
+| 6 | **MAPPING.md template** | Templatize the Kawasaki mapping for other vendors | `community/scenarios/README.md` or `skills/downloader/templates/` |
+
+### Tier 3 — Medium Impact (when capacity allows)
+
+| # | Action | Impact | Location |
+|---|--------|--------|----------|
+| 7 | **Docstring enrichment** in stubs | Better hover docs in IDE — nice but not blocking | `typings/` `.pyi` files |
+| 8 | **Stub generator contribution** (C++ XML docs) | Ships docstrings in every E2 release | E2 source (Azure DevOps) |
+| 9 | **Remove redundant vault API class docs** | Reduces maintenance, avoids drift | Vault `10_API_Reference/Download/*.md` |
+| 10 | **Remote MCP serving** | Only needed for external users | Vault §17 |
+
+### Tier 4 — Low Priority (deferred)
+
+| # | Action | Reason to defer |
+|---|--------|----------------|
+| 11 | Azure AI Search MCP | Local vault sufficient; no external users yet |
+| 12 | Docstring batches 3–4 (cenpylib, cenpyunits) | Utility packages rarely cause agent errors |
+| 13 | Scheduled agent workflows | Need stable vault content first |
+
+### What NOT to do (learned from session)
+
+- **Don't maintain per-class API docs in the vault** that duplicate `.pyi` stubs. They drift and the agent doesn't use them.
+- **Don't invest in docstrings before scenarios** — scenarios (golden + reference) provide more value per hour than docstring writing.
+- **Don't build remote serving** until there's an external user requesting it.

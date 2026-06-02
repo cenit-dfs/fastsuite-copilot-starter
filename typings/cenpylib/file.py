@@ -17,17 +17,18 @@ class FileUtility:
    # ----------------------------------------------------------------------
    #   GLOBAL ENCODING SUPPORT (automatic detection for worldwide files)
    # ----------------------------------------------------------------------
+   # Order matters: strict / unambiguous encodings must come first, because
+   # cp1252 and similar single-byte encodings accept *any* byte sequence and
+   # would silently mis-decode CJK files into mojibake otherwise.
    ENCODINGS_TO_TRY = [
-      "utf-8",
-      "utf-8-sig",
-      "cp1252",
-      "cp1250",
-      "gb18030",
-      "gbk",
-      "gb2312",
-      "shift_jis",
+      "utf-8-sig",     # BOM is unambiguous
+      "utf-8",         # strict: invalid bytes raise
+      "gb18030",       # Chinese (superset of GBK / GB2312)
+      "shift_jis",     # Japanese
       "euc_jp",
       "iso2022_jp",
+      "cp1250",        # Central European
+      "cp1252",        # Western European — decodes almost anything, keep last
    ]
 
    def DetectEncoding(self, filePath):
@@ -46,13 +47,22 @@ class FileUtility:
       Open file with automatic encoding detection for reading.
       For writing, always use UTF‑8‑SIG (Excel/Windows friendly).
       """
-      if "r" in mode and exists(filePath):
+      if "r" in mode and "b" not in mode and exists(filePath):
+         # Note: open() does not actually decode bytes, so a try/except around
+         # open() can never catch a UnicodeDecodeError. We must read the file
+         # to validate the encoding before returning the handle.
          for enc in self.ENCODINGS_TO_TRY:
             try:
+               with open(filePath, mode, encoding=enc) as probe:
+                  probe.read()
                return open(filePath, mode, encoding=enc)
+            except UnicodeDecodeError:
+               continue
             except Exception:
-               pass
-         raise UnicodeDecodeError("Could not detect encoding", "", 0, 0, "All attempts failed")
+               continue
+         # Last resort: open with latin-1 (never raises) so callers still get
+         # a usable handle instead of crashing.
+         return open(filePath, mode, encoding="latin-1", errors="replace")
 
       return open(filePath, mode, encoding="utf-8")
 

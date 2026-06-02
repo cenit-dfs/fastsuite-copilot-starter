@@ -104,6 +104,7 @@ Over time, the original community repo gets new commits. To sync your fork:
 
 ```powershell
 # Add the original repo as "upstream" (one-time setup)
+git remote add upstream https://github.com/cenit-dfs/fastsuite-copilot-starter.git
 git remote add upstream https://github.com/cenit-dfs/fastsuite-e2-community.git
 
 # Fetch the latest changes
