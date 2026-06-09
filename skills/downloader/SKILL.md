@@ -609,6 +609,107 @@ def _fmtRound1(self, value):
    # 0.0 → "0", 4.6 → "4.6", 100.0 → "100"
 ```
 
+### Pattern: Main/Subprogram Handling
+
+The E2 download starter supports three subprogram strategies controlled by two overridable methods on your `Downloader` subclass:
+
+| `OutputSubprogramInSeparateFiles()` | `HandleSubprogramInLoop()` | Behavior |
+|-------------------------------------|---------------------------|----------|
+| `True` (base default) | — | Each subprogram gets its own `HandleProgram()` call → separate output file |
+| `False` | `False` | After main program loop, subprograms are appended via `LoopProgram()` in the same file |
+| `False` | `True` | Subprograms are traversed inline during `GetGroupsAndSubprograms()` iteration |
+
+**Framework traversal flow** (from `downloadStarter.py`):
+
+```
+DownloadActiveProgram()
+└─ HandleProgram(mainProgram)
+   ├─ OutputHeader()
+   ├─ LoopProgram(mainProgram)
+   │  ├─ ProgramStart()
+   │  ├─ for each in program.GetGroupsAndSubprograms():
+   │  │  ├─ if OperationGroup → OperationGroupStart/Operations/OperationGroupEnd
+   │  │  └─ if Subprogram → SubprogramStart() / [inline LoopProgram if HandleInLoop] / SubProgramEnd()
+   │  └─ ProgramEnd()
+   ├─ [if !SeparateFiles && !HandleInLoop: loop program.GetSubprograms() → LoopProgram(each)]
+   ├─ CreateOutputFile → WriteOutputFile → CloseOutputFile
+   └─ [if SeparateFiles: loop program.GetSubprograms() → HandleProgram(each)]
+```
+
+**Key APIs:**
+- `program.IsMainProgram()` → `bool` — True for the top-level program
+- `program.GetSubprograms()` → `list[DULPythonSubprogram]` — subprogram references
+- `program.GetGroupsAndSubprograms()` → `list` — interleaved operation groups and subprogram calls (cast with `CastToOperationGroup` / `CastToSubprogram`)
+- `program.GetOperationGroups()` → `list[DULPythonOperationGroup]` — operation groups only (no subprograms)
+- `subprogram.GetCalledProgram()` → `DULPythonProgram` — the program being called
+- `subprogram.GetName()` → `str` — name of the subprogram
+
+**Detecting a "container" main program** (one that only holds CALL statements):
+
+```python
+def ProgramStart(self, operator, program):
+   self.isContainerProgram = program.IsMainProgram() and len(program.GetSubprograms()) > 0
+```
+
+**Emitting CALL statements** in `SubprogramStart`:
+
+```python
+def SubprogramStart(self, operator, subprogram):
+   self.Source.append('CALL ' + subprogram.GetName())
+```
+
+### Pattern: Per-Program State Reset
+
+When `OutputSubprogramInSeparateFiles` is True, `ProgramStart` is called once per program (main + each sub). All per-program state must be reset there — NOT in `__init__` or `OutputHeader`:
+
+```python
+def ProgramStart(self, operator, program):
+   self.programName = program.GetName()
+   # Reset output buffers
+   self.TransBlock = []
+   self.JointsBlock = []
+   self.Source = []  # or keep appending if single-file
+   # Reset all flags
+   self.headerEmitted = False
+   self.arcOnActive = False
+   self.pendingSpeed = None
+   self.lastSpeed = None
+   # ... reset all per-program state
+```
+
+`OutputHeader` should only read **controller-level** data (output directory, motion profiles, resource attributes) that stays constant across programs.
+
+### Pattern: Subroutine Deduplication
+
+Hard-coded subroutines (e.g., touch sensing helpers, utility programs) that are shared across subprograms should be emitted **once in the main program file**, not in every subprogram.
+
+**Strategy:** Pre-scan the subprogram tree in `ProgramStart` of the main program, then emit subroutines in `ProgramEnd` only for the main:
+
+```python
+def ProgramStart(self, operator, program):
+   self._treeNeedsSubroutines = False
+   if self.isContainerProgram:
+      self._treeNeedsSubroutines = self._scanTreeForFeature(program)
+
+def ProgramEnd(self, operator, program):
+   self.Source.append('.END')
+   # Only in main program file
+   if self.isContainerProgram:
+      if self._treeNeedsSubroutines:
+         self._emitHelperSubroutines()
+   elif program.IsMainProgram() and self.hasFeatureAtRuntime:
+      self._emitHelperSubroutines()  # standalone (no subs)
+
+def _scanTreeForFeature(self, program):
+   for sub in program.GetSubprograms():
+      calledProg = sub.GetCalledProgram()
+      for opGroup in calledProg.GetOperationGroups():
+         for op in opGroup.GetOperations():
+            if self._operationNeedsFeature(op):
+               return True
+   return False
+```
+
 ---
 
 ## Debugging

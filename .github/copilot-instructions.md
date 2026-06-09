@@ -16,8 +16,8 @@
 - Do not introduce new third-party dependencies unless necessary.
 - Keep vendor-specific logic under the vendor folder (e.g., `OLPTranslators/MyVendor`).
 - Put specs and change notes in vendor docs:
-  - Spec: `docs/<VENDOR>/spec/*.md`
-  - Change log / working notes: `docs/<VENDOR>/current.md`
+  - Spec: `docs/ctrl-specific/<VENDOR>/spec/*.md`
+  - Change log / working notes: `docs/ctrl-specific/<VENDOR>/current.md`
 
 ## API Documentation Context
 Use the `obsidian-e2` MCP server to look up E2 Python API docs. Search the vault for the relevant classes and callbacks.
@@ -45,8 +45,8 @@ Use the `obsidian-e2` MCP server to look up E2 Python API docs. Search the vault
 
 ## Documentation Rules
 - If you change downloader behavior or output format, update:
-  - `docs/<VENDOR>/current.md`
-  - and the relevant spec under `docs/<VENDOR>/spec/`.
+  - `docs/ctrl-specific/<VENDOR>/current.md`
+  - and the relevant spec under `docs/ctrl-specific/<VENDOR>/spec/`.
 - Avoid large "wall of text" docs; keep specs actionable and scoped.
 
 ## Coding Rules
@@ -82,6 +82,19 @@ Use the `obsidian-e2` MCP server to look up E2 Python API docs. Search the vault
 - `community/OLPTranslators/KUKA/KUKA_KRC5.py` — canonical base downloader pattern
 - `community/OLPTranslators/ABB/ABB_IRC5.py` — advanced multi-plugin reference
 - `community/OLPTranslators/Simple_Python_Translator.py` — OLP tree dumper for analysis
+
+## Session Debrief (Knowledge Capture)
+
+After completing a milestone (feature works, bug fixed, golden files pass), run through this checklist:
+
+1. **Cross-vendor pattern?** → Update `skills/downloader/SKILL.md` (or the relevant skill). Examples: new framework API usage, event handling pattern, traversal strategy.
+2. **Vendor-specific gotcha?** → Update `docs/ctrl-specific/<VENDOR>/spec/downloader-patterns.md`. Examples: output order, Euler convention, formatting quirks, state machine flags.
+3. **Output format changed?** → Update `docs/ctrl-specific/<VENDOR>/spec/` (the relevant spec) and `docs/ctrl-specific/<VENDOR>/current.md`.
+4. **Golden coverage** → Run the "Check Golden Coverage" task to verify new programs have golden files.
+5. **Platform discovery?** → If the `obsidian-e2` MCP is connected, write to `90_Inbox_AI/` via `create_vault_file`. Good candidates: undocumented callback behavior, attribute type traps, framework traversal rules, error root causes. Use frontmatter `status: draft`, `source: agent-generated`. Search the vault first to avoid duplicates.
+
+This keeps lessons in the repo (git-tracked, visible to all collaborators) rather than in ephemeral agent memory.
+Platform-wide discoveries flow to the vault inbox for human triage and promotion.
 
 ## Environment
 - Python 3.12 (bundled with FASTSUITE E2) — interpreter path configured in `.vscode/settings.json`.

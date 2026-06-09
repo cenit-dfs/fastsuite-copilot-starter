@@ -16,7 +16,7 @@ Update an existing implementation plan file to reflect current progress, new dis
 
 ## Workflow
 
-1. **Read the existing plan** at `docs/<VENDOR>/plan/<name>.md`
+1. **Read the existing plan** at `docs/ctrl-specific/<VENDOR>/plan/<name>.md`
 2. **Apply updates**:
    - Mark completed tasks with ✅ and date
    - Add new tasks with next sequential IDs

@@ -107,7 +107,7 @@ git submodule update --remote
 ## Adding Your Own Vendor Docs
 
 ```
-docs/<VENDOR>/
+docs/ctrl-specific/<VENDOR>/
 ├── spec/           # Specifications
 │   └── *.md
 └── current.md      # Change log / working notes

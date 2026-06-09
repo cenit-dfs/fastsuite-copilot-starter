@@ -19,6 +19,7 @@ DOWNLOAD_CLASS_NAME = "KAWASAKI"
 
 class KAWASAKI(Downloader):
    FILE_EXTENSION = '.as'
+   SEPARATE_SUBPROGRAM_FILES = True
 
    def __init__(self) -> None:
       super().__init__()
@@ -73,6 +74,14 @@ class KAWASAKI(Downloader):
       self.lastCp = None
       self.lastAccuracy = None
 
+   # ==================== FRAMEWORK OVERRIDES ====================
+
+   def OutputSubprogramInSeparateFiles(self):
+      return self.SEPARATE_SUBPROGRAM_FILES
+
+   def HandleSubprogramInLoop(self):
+      return False
+
    # ==================== LIFECYCLE ====================
 
    def Initialize(self, operator: DULPythonDownloadOperator):
@@ -81,9 +90,8 @@ class KAWASAKI(Downloader):
 
    def OutputHeader(self, operator: DULPythonDownloadOperator, controller: DULPythonController):
       logger = operator.GetLogOperator()
-      program = controller.GetActiveProgram()
+      logger.LogDebug("KAWASAKI OutputHeader")
       self.outputDir = controller.GetOutputDirectory()
-      self.programName = program.GetName()
       # Extract PTP speed from motion profiles
       for profile in controller.GetMotionProfiles():
          if 'PTP' in profile.GetName():
@@ -95,7 +103,40 @@ class KAWASAKI(Downloader):
             if attr.GetName() == 'CENOlpDataOutputStyle':
                self.explicitMode = (attr.GetValue() == 'Explicit')
                break
-      # Read program-level sensing parameters
+
+   def ProgramStart(self, operator: DULPythonDownloadOperator, program: DULPythonProgram):
+      self.programName = program.GetName()
+      self.isContainerProgram = program.IsMainProgram() and len(program.GetSubprograms()) > 0
+      # Reset per-program state
+      self.TransBlock = []
+      self.JointsBlock = []
+      self.headerEmitted = False
+      self.hasTouchSensing = False
+      self.rotbaseOn = 0
+      self.arcOnActive = False
+      self.arcOnIsFirstMotion = False
+      self.arcOnLastProcessCurve = False
+      self.inWeldSection = False
+      self.hasCrater = False
+      self.craterCondNumber = 0
+      self.hasSensing = False
+      self.hasRtpm = False
+      self.weldConditionNumber = 1
+      self.currentTouchId = 0
+      self.currentFramePt = 0
+      self.lastFramePt = 0
+      self.currentGroupTsIdName = ''
+      self.collisionPending = False
+      self.currentTsOffset = ''
+      self.pendingSpeed = None
+      self.pendingAccel = None
+      self.pendingCp = None
+      self.pendingAccuracy = None
+      self.lastSpeed = None
+      self.lastAccel = None
+      self.lastCp = None
+      self.lastAccuracy = None
+      # Read program-level attributes
       for attr in program.GetAttributes():
          name = attr.GetName()
          if name == 'SensingLength':
@@ -104,30 +145,38 @@ class KAWASAKI(Downloader):
             self.sensingSpeed = float(attr.GetValue()) * 1000
          elif name == 'TSConnectionType':
             self.tsConnectionType = attr.GetValue()
-      # Store tool profile for .TRANS block
-      toolProfile = program.GetUsedToolProfile()
-      if toolProfile:
-         toolName = self.programName + '_' + toolProfile.GetName()
-         xyz = toolProfile.GetXYZ()
-         angles = toolProfile.GetOrientation()
-         oat = self.EulerConverter.ConvertEuler(angles[0], angles[1], angles[2],
-               Notations.Euler_ZYZr, Notations.Euler_XYZs)
-         self.TransBlock.append(self._formatTransLine(toolName,
-               xyz[0]*1000, xyz[1]*1000, xyz[2]*1000, oat[0], oat[1], oat[2]))
-
-   def ProgramStart(self, operator: DULPythonDownloadOperator, program: DULPythonProgram):
+      # Store tool profile for .TRANS block (skip for container main programs)
+      if not self.isContainerProgram:
+         toolProfile = program.GetUsedToolProfile()
+         if toolProfile:
+            toolName = self.programName + '_' + toolProfile.GetName()
+            xyz = toolProfile.GetXYZ()
+            angles = toolProfile.GetOrientation()
+            oat = self.EulerConverter.ConvertEuler(angles[0], angles[1], angles[2],
+                  Notations.Euler_ZYZr, Notations.Euler_XYZs)
+            self.TransBlock.append(self._formatTransLine(toolName,
+                  xyz[0]*1000, xyz[1]*1000, xyz[2]*1000, oat[0], oat[1], oat[2]))
+      # Pre-scan subprograms for touch sensing so we can emit subroutines in the main file
+      self._treeHasTouchSensing = False
+      if self.isContainerProgram:
+         self._treeHasTouchSensing = self._scanTreeForTouchSensing(program)
       self.Source.append('.PROGRAM ' + self.programName + '()')
       self.Source.append(';Compensate track/rail/positioner')
       self.Source.append('ROTBASE_ON = 0')
 
    def ProgramEnd(self, operator: DULPythonDownloadOperator, program: DULPythonProgram):
       self.Source.append('.END')
-      if self.hasTouchSensing:
+      # Emit touch subroutines once: in the main program file only
+      if self.isContainerProgram:
+         if self._treeHasTouchSensing:
+            self._emitTouchSubroutines()
+      elif program.IsMainProgram() and self.hasTouchSensing:
          self._emitTouchSubroutines()
-      self.Source.append('.TRANS')
-      self.TransBlock.sort(key=lambda line: line.split()[0])
-      self.Source.extend(self.TransBlock)
-      self.Source.append('.END')
+      if self.TransBlock:
+         self.Source.append('.TRANS')
+         self.TransBlock.sort(key=lambda line: line.split()[0])
+         self.Source.extend(self.TransBlock)
+         self.Source.append('.END')
       if self.JointsBlock:
          self.Source.append('.JOINTS')
          self.Source.extend(self.JointsBlock)
@@ -906,6 +955,16 @@ class KAWASAKI(Downloader):
             maxTid = touchId
       return self.programName + '_TS_ID_' + str(maxTid) if maxTid > 0 else ''
 
+   def _scanTreeForTouchSensing(self, program):
+      for sub in program.GetSubprograms():
+         calledProg = sub.GetCalledProgram()
+         for opGroup in calledProg.GetOperationGroups():
+            for op in opGroup.GetOperations():
+               for attr in op.GetAttributes():
+                  if attr.GetName() == 'ArcWeldingOperationWorkMethodName' and 'TouchSensing' in attr.GetValue():
+                     return True
+      return False
+
    # ==================== HEADER ====================
 
    def _emitProgramHeader(self, operation: DULPythonOperation):
@@ -1048,7 +1107,7 @@ class KAWASAKI(Downloader):
       operator.AddOutputFilePath(self.outputFilePath)
 
    def SubprogramStart(self, operator: DULPythonDownloadOperator, subprogram: DULPythonSubprogram):
-      pass
+      self.Source.append('CALL ' + subprogram.GetName())
 
    def SubProgramEnd(self, operator: DULPythonDownloadOperator, subprogram: DULPythonSubprogram):
       pass

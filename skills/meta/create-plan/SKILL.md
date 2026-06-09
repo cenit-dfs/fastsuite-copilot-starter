@@ -18,7 +18,7 @@ Create a phased implementation plan with discrete, trackable tasks. Plans are st
 
 Save implementation plans to:
 ```
-docs/<VENDOR>/plan/<name>.md
+docs/ctrl-specific/<VENDOR>/plan/<name>.md
 ```
 
 Naming convention: `<purpose>-<component>.md`
@@ -84,7 +84,7 @@ tags: [feature, upgrade, roadmap, etc.]
 ## 5. Files Affected
 
 - **FILE-001**: `OLPTranslators/<VENDOR>/<file>.py` — [what changes]
-- **FILE-002**: `docs/<VENDOR>/spec/<spec>.md` — [spec to create/update]
+- **FILE-002**: `docs/ctrl-specific/<VENDOR>/spec/<spec>.md` — [spec to create/update]
 
 ## 6. Testing
 

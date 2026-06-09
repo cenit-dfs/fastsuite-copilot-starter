@@ -16,7 +16,7 @@ Update an existing specification file based on new requirements or changes disco
 
 ## Workflow
 
-1. **Read the existing spec** at `docs/<VENDOR>/spec/<name>.md`
+1. **Read the existing spec** at `docs/ctrl-specific/<VENDOR>/spec/<name>.md`
 2. **Identify what changed** — new requirements, corrected mappings, additional edge cases
 3. **Update in place** — preserve existing structure, add/modify sections as needed
 4. **Update `last_updated`** in frontmatter

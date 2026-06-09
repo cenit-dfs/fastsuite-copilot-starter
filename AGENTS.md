@@ -18,7 +18,7 @@ Agent for creating and modifying OLP downloaders (robot program generators).
 - Use `community/OLPTranslators/Simple_Python_Translator.py` as OLP tree reference — trigger a download in E2 to get a `.txt` dump of the full object tree for analysis
 - Use `community/OLPTranslators/KUKA/KUKA_KRC5.py` as the canonical base downloader pattern
 - Use `community/OLPTranslators/ABB/ABB_IRC5.py` as advanced multi-plugin reference
-- Vendor-specific docs under `docs/<VENDOR>/spec/`
+- Vendor-specific docs under `docs/ctrl-specific/<VENDOR>/spec/`
 
 ---
 

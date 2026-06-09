@@ -18,7 +18,7 @@ Create a new specification file that defines requirements, constraints, and inte
 
 Save specification files to:
 ```
-docs/<VENDOR>/spec/<name>.md
+docs/ctrl-specific/<VENDOR>/spec/<name>.md
 ```
 
 Naming convention: `<scope>-<component>.md`
