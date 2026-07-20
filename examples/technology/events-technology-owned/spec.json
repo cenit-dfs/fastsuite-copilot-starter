@@ -1,0 +1,15 @@
+{
+  "$schema": "../schemas/events-spec.schema.json",
+  "spec_version": 1,
+  "example_id": "ultrasonic-events-technology-owned",
+  "target_release": "FASTSUITE E2 R2026.1",
+  "registration_owner": "technology",
+  "events": [
+    {"name": "FourPointApproach", "script": "FourPointApproach.py", "uuid": "1E02EA6A-BD3C-475F-BC79-0CD098C00EFC"},
+    {"name": "SkipEvent", "script": "SkipEvent.py", "uuid": "f2bbdeea-7ef1-4ad7-ad66-56e0a101e6b4"}
+  ],
+  "rule_bindings": [
+    {"rule": "ApproachRule", "event": "FourPointApproach", "active": true}
+  ],
+  "runtime_validation": "pending"
+}

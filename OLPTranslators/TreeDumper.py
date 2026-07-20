@@ -640,12 +640,51 @@ class TreeDumper(Downloader):
       self._motionCount += 1
       y.list_item_mapping_start("name", motion.GetName(), depth)
       y.key_value("motion_type", safe_enum_name(motion.GetMotionType()), depth + 1)
+      y.key_value("is_ptp", motion.IsPtPMotion(), depth + 1)
+      y.key_value("is_linear", motion.IsLinearMotion(), depth + 1)
+      y.key_value("is_circular", motion.IsCircularMotion(), depth + 1)
       y.key_value("is_reference", motion.IsReferenceMotion(), depth + 1)
 
+      # Nested motion attributes
+      y.key_only("attributes", depth + 1)
+      try:
+         motionAttrs = motion.GetAttributes()
+         self._attrCounts["motion"] += len(motionAttrs)
+         for attr in motionAttrs:
+            self._emit_attribute(y, attr, depth + 2)
+      except Exception:
+         pass
+
+      # Events before nested motion
+      eventsBefore = motion.GetEventsBefore()
+      y.key_only("events_before", depth + 1)
+      for event in eventsBefore:
+         self._emit_event(y, operator, event, depth + 2)
+
+      # Position
       pos = motion.GetPosition()
       if pos:
          y.key_only("position", depth + 1)
          self._emit_position(y, operator, pos, depth + 2)
+      else:
+         y.key_value("position", None, depth + 1)
+
+      # Via position (circular)
+      if motion.IsCircularMotion():
+         via = motion.GetViaPosition()
+         if via:
+            y.key_only("via_position", depth + 1)
+            self._emit_position(y, operator, via, depth + 2)
+         else:
+            y.key_value("via_position", None, depth + 1)
+      else:
+         y.key_value("via_position", None, depth + 1)
+
+      # Events after nested motion
+      eventsAfter = motion.GetEventsAfter()
+      y.key_only("events_after", depth + 1)
+      for event in eventsAfter:
+         self._emit_event(y, operator, event, depth + 2)
 
    def _emit_position(self, y: YamlEmitter, operator: DULPythonDownloadOperator, position: DULPythonPosition, depth: int):
       y.key_value("name", position.GetName(), depth)

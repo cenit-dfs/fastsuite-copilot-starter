@@ -230,9 +230,10 @@ CALL kr_frame(FRAME_REF_PT_1, FRAME_REF_PT_2, FRAME_REF_PT_3, FRAME_PT_1, FRAME_
 
 ```
 .PROGRAM {name}()
+  [GROUP {groupNumber}]  ; emitted when the program-level GroupNumber is nonzero
   ; FASTSUITE_II – Kawasaki Translator
   TOOL {toolIdx}
-  BASE {baseIdx} [/ ROTBASE_ON=1]
+  [BASE {rotBaseProfileName} | BASE NULL]
   [CP OFF]
   HOME
   ... body ...
@@ -241,6 +242,7 @@ CALL kr_frame(FRAME_REF_PT_1, FRAME_REF_PT_2, FRAME_REF_PT_3, FRAME_PT_1, FRAME_
 [kr_touch subroutine]
 [kr_frame subroutine]
 .TRANS
+  {rotBaseProfileName} {x} {y} {z} {o} {a} {t}  # ROT_BASE profiles only
   {name} {x} {y} {z} {o} {a} {t} [{e1} {e2} ...]
   ... (sorted alphabetically)
 .JOINTS

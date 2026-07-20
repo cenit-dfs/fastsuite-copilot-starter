@@ -1,0 +1,12 @@
+event: FourPointApproach
+generated_sequence:
+  - {kind: Speed, insertion: before_first_motion}
+  - {kind: Accuracy, insertion: before_first_motion}
+  - {kind: Motion, motion_type: PTP, index: 1}
+  - {kind: SkipEvent, value: true, insertion: before_motion_2}
+  - {kind: Motion, motion_type: LIN, index: 2}
+  - {kind: Motion, motion_type: LIN, index: 3}
+  - {kind: Motion, motion_type: LIN, index: 4}
+  - {kind: Motion, motion_type: LIN, index: 5}
+  - {kind: SkipEvent, value: false, insertion: after_motion_5}
+status: expected_not_yet_captured

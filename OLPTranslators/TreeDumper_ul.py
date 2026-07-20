@@ -30,6 +30,16 @@ UPLOAD_CLASS_NAME = "TreeDumperUploader"
 # Schema version this uploader supports
 SUPPORTED_SCHEMA_VERSIONS = ["1.0"]
 
+# =============================================================================
+# Experiment flags for touch-sensing / reference motion upload behavior.
+# Toggle these to test what E2 technology accepts.
+# =============================================================================
+EXP_REF_PROCESS_TYPE_PP = True    # Force ProcessPoint on reference motions (like PRIMA regshapes)
+EXP_SKIP_NESTED_MOTIONS = False   # Don't upload sub-motions inside events (let E2 regenerate)
+EXP_REF_MOTION_LINEAR   = True    # Force Linear motion type on reference motions (vs Pt2Pt from YAML)
+EXP_DEFAULT_SPEED       = True    # Add a default Speed event (InsertAfter) to motions that have none
+EXP_DEFAULT_SPEED_VALUE = 0.5     # Default speed value in m/s
+
 def _enum_lookup(enum_class, name, default):
    """Safe enum lookup by name — returns default if name not found."""
    try:
@@ -331,6 +341,8 @@ class TreeDumperUploader(Uploader):
       # Keep strong Python references to all created E2 objects to prevent pybind11
       # from releasing C++ objects while E2 still holds raw/weak pointers to them.
       self._createdObjects = []
+      # Track whether a default Speed event has been added to the first motion
+      self._firstMotionSpeedDone = False
 
    def Initialize(self, operator: ULPythonUploadOperator):
       logger = operator.GetLogOperator()
@@ -489,7 +501,16 @@ class TreeDumperUploader(Uploader):
    def _buildOperation(self, operator, attrSetter, opData, logger):
       operation = operator.CreateEmptyOperation()
       self._createdObjects.append(operation)
-      operation.SetName(opData.get("name", "Unnamed"))
+      opName = opData.get("name", "Unnamed")
+      operation.SetName(opName)
+
+      # Log workmethod if present
+      wmAttr = None
+      for a in (opData.get("attributes") or []):
+         if "WorkMethod" in str(a.get("name", "")):
+            wmAttr = a.get("value", "?")
+      motionCount = len(opData.get("motions") or [])
+      logger.LogInfo("TreeDumper_ul: op " + opName + " wm=" + str(wmAttr) + " motions=" + str(motionCount))
 
       # Base profile
       bpName = opData.get("base_profile")
@@ -527,40 +548,72 @@ class TreeDumperUploader(Uploader):
    # ================================================================
 
    def _buildMotion(self, operator, attrSetter, motionData, logger):
+      motionName = motionData.get("name", "")
+      isRef = motionData.get("is_reference", False)
+      mtName = motionData.get("motion_type", "Linear")
+      posData = motionData.get("position")
+      eventsBefore = motionData.get("events_before") or []
+      eventsAfter = motionData.get("events_after") or []
+
+      logger.LogInfo("TreeDumper_ul: motion " + motionName
+                     + " ref=" + str(isRef)
+                     + " mt=" + mtName
+                     + " hasPos=" + str(posData is not None)
+                     + " evB=" + str(len(eventsBefore))
+                     + " evA=" + str(len(eventsAfter)))
+
       motion = operator.CreateEmptyMotion()
       self._createdObjects.append(motion)
-      motion.SetName(motionData.get("name", ""))
+      motion.SetName(motionName)
 
       # Motion type
-      mtName = motionData.get("motion_type", "Linear")
       mt = _enum_lookup(MotionType, mtName, MotionType.Linear)
+      if isRef and EXP_REF_MOTION_LINEAR:
+         logger.LogDebug("TreeDumper_ul EXP: mt " + mtName + " -> Linear (ref)")
+         mt = MotionType.Linear
       motion.SetMotionType(mt)
 
       # Events before
-      eventsBefore = motionData.get("events_before", [])
       if eventsBefore:
          builtEvents = []
          for evData in eventsBefore:
-            ev = self._buildEvent(operator, attrSetter, evData, logger)
+            evName = evData.get("name", "?")
+            nestedCount = len(evData.get("motions") or [])
+            attrCount = len(evData.get("attributes") or [])
+            skipNested = isRef and EXP_SKIP_NESTED_MOTIONS
+            logger.LogDebug("TreeDumper_ul:   evB: " + evName
+                           + " attrs=" + str(attrCount)
+                           + " nested=" + str(nestedCount)
+                           + (" SKIP_NESTED" if skipNested else ""))
+            ev = self._buildEvent(operator, attrSetter, evData, logger,
+                                  skip_nested=skipNested)
             if ev:
                builtEvents.append(ev)
          if builtEvents:
             motion.SetEventsBefore(builtEvents)
 
       # Position
-      posData = motionData.get("position")
       if posData and isinstance(posData, dict):
          pos = self._buildPosition(operator, posData, logger)
+         ptOrig = posData.get("process_type", "?")
+         if pos and isRef and EXP_REF_PROCESS_TYPE_PP:
+            logger.LogDebug("TreeDumper_ul EXP: pt " + ptOrig + " -> ProcessPoint (ref)")
+            pos.SetProcessType(ProcessType.ProcessPoint)
          if pos:
             motion.SetPosition(pos)
-      elif motionData.get("is_reference", False):
-         # Reference motions (e.g. touch-sensing) have no coordinates in YAML.
-         # E2 still requires a position object; technology computes actual coords.
+            logger.LogDebug("TreeDumper_ul:   pos: pt=" + ptOrig
+                           + " xyz=" + str(posData.get("xyz_m"))
+                           + " ori=" + str(posData.get("orientation_deg")))
+      elif isRef:
          refPos = operator.CreateEmptyPosition()
          self._createdObjects.append(refPos)
-         refPos.SetName(motionData.get("name", ""))
-         refPos.SetProcessType(_enum_lookup(ProcessType, "Auxiliary", ProcessType.Auxiliary))
+         refPos.SetName(motionName)
+         if EXP_REF_PROCESS_TYPE_PP:
+            refPos.SetProcessType(ProcessType.ProcessPoint)
+         else:
+            refPos.SetProcessType(_enum_lookup(ProcessType, "Auxiliary", ProcessType.Auxiliary))
          motion.SetPosition(refPos)
+         logger.LogDebug("TreeDumper_ul:   empty ref position (no pos in YAML)")
 
       # Via position (circular motions)
       viaData = motionData.get("via_position")
@@ -570,17 +623,57 @@ class TreeDumperUploader(Uploader):
             motion.SetViaPosition(viaPos)
 
       # Events after
-      eventsAfter = motionData.get("events_after", [])
       if eventsAfter:
          builtEvents = []
          for evData in eventsAfter:
-            ev = self._buildEvent(operator, attrSetter, evData, logger)
+            evName = evData.get("name", "?")
+            nestedCount = len(evData.get("motions") or [])
+            attrCount = len(evData.get("attributes") or [])
+            skipNested = isRef and EXP_SKIP_NESTED_MOTIONS
+            logger.LogDebug("TreeDumper_ul:   evA: " + evName
+                           + " attrs=" + str(attrCount)
+                           + " nested=" + str(nestedCount)
+                           + (" SKIP_NESTED" if skipNested else ""))
+            ev = self._buildEvent(operator, attrSetter, evData, logger,
+                                  skip_nested=skipNested)
             if ev:
                builtEvents.append(ev)
          if builtEvents:
             motion.SetEventsAfter(builtEvents)
 
+      # Default Speed event — add to first motion in program if none exists
+      if EXP_DEFAULT_SPEED and not self._firstMotionSpeedDone:
+         allEvNames = [e.get("name", "") for e in eventsBefore + eventsAfter]
+         if "Speed" not in allEvNames:
+            pathType = "PTP" if mtName == "Pt2Pt" else "Contour"
+            speedEv = self._buildDefaultSpeedEvent(operator, attrSetter, pathType)
+            if speedEv:
+               motion.AddEventBefore(speedEv)
+               logger.LogInfo("TreeDumper_ul EXP: +Speed v=" + str(EXP_DEFAULT_SPEED_VALUE)
+                             + " pathType=" + pathType + " BEFORE " + motionName)
+         self._firstMotionSpeedDone = True
+
       return motion
+
+   def _buildDefaultSpeedEvent(self, operator, attrSetter, pathType="Contour"):
+      """Create a default Speed event with a safe velocity value."""
+      event = operator.CreateEmptyEvent()
+      self._createdObjects.append(event)
+      event.SetName("Speed")
+      event.SetInsertPosition(InsertPosition.InsertBefore)
+
+      valAttr = attrSetter.CreateWritingDoubleAttributesObject()
+      valAttr.SetName("Value")
+      valAttr.SetValue(EXP_DEFAULT_SPEED_VALUE)
+      valAttr.SetValueUnitType(AttributeValueUnitType.Speed)
+      event.AddAttribute(valAttr)
+
+      ptAttr = attrSetter.CreateWritingStringAttributesObject()
+      ptAttr.SetName("PathType")
+      ptAttr.SetValue(pathType)
+      event.AddAttribute(ptAttr)
+
+      return event
 
    # ================================================================
    # Position builder
@@ -648,7 +741,7 @@ class TreeDumperUploader(Uploader):
    # Event builder
    # ================================================================
 
-   def _buildEvent(self, operator, attrSetter, evData, logger):
+   def _buildEvent(self, operator, attrSetter, evData, logger, skip_nested=False):
       event = operator.CreateEmptyEvent()
       self._createdObjects.append(event)
       event.SetName(evData.get("name", ""))
@@ -667,11 +760,13 @@ class TreeDumperUploader(Uploader):
 
       # Nested motions (approach/retract events contain motions)
       nestedMotions = evData.get("motions", [])
-      if nestedMotions:
+      if nestedMotions and not skip_nested:
          for mData in nestedMotions:
             nestedMotion = self._buildNestedMotion(operator, mData, logger)
             if nestedMotion:
                event.AddMotion(nestedMotion)
+      elif nestedMotions and skip_nested:
+         logger.LogDebug("TreeDumper_ul EXP: skipping " + str(len(nestedMotions)) + " nested motions in event " + evData.get("name", ""))
 
       return event
 

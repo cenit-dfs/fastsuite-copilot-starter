@@ -1,4 +1,5 @@
 ---
+name: downloader
 description: Guide for creating and modifying FASTSUITE E2 OLP downloaders (robot program generators). Use when working on files under OLPTranslators/.
 applyTo: OLPTranslators/**/*.py
 ---
@@ -9,16 +10,89 @@ applyTo: OLPTranslators/**/*.py
 
 A downloader converts the FASTSUITE E2 OLP object tree (programs, operations, motions, events) into vendor-specific robot code (KRL for KUKA, RAPID for ABB, LS for FANUC, etc.). It is a Python class that inherits from `Downloader` and implements lifecycle callbacks.
 
+## Start Here: Tree Dumper First
+
+Before changing vendor syntax emission, first inspect what E2 is actually giving you.
+
+Default workflow:
+
+1. Run `community/OLPTranslators/Simple_Python_Translator.py` to dump the active OLP tree as a `.txt` reference.
+2. Use that dump to identify the exact program / operation / motion / event / attribute path that controls the behavior.
+3. Only after the dump confirms the data exists should you edit the vendor downloader.
+4. If the dump does not contain the expected data, stop looking in the downloader and move one layer closer to the real owner: technology callbacks, uploader reconstruction, controller/resource mapping, or E2-generated virtual data.
+
+Use the tree dumper as the source of truth for:
+
+- Exact callback-visible structure and ordering
+- Event names, event types, insert positions, and repeated attribute groups
+- Motion context such as `IsReferenceMotion()`, `ProcessType`, target type, config, and turn
+- Technology-managed artifacts that may appear in the OLP tree even when they do not exist in robot native code
+
+Do not start by guessing from generated robot code alone. Start from the tree dump, then verify the nearest reference implementation, then make the smallest downloader change.
+
+## API Authority
+
+- Use `typings/cenpydownload`, `typings/cenpyolpcore`, `typings/cenpymath`, and related repo stubs as the authority for method names, signatures, enum members, and return types.
+- Use the Obsidian vault as the authority for lifecycle order, callback semantics, patterns, and gotchas.
+- If a stubbed API disagrees with the vault text, trust `typings/` first and verify against real downloader code or runtime output.
+
+Short rule: signatures from `typings/`, behavior from Obsidian.
+
 ## Reference Files
 
 | File | Purpose |
 |------|---------|
 | `community/OLPTranslators/Simple_Python_Translator.py` | **OLP tree dumper** — downloads the complete object tree as `.txt` for analysis. Trigger a download in E2 to get one. |
+| `OLPTranslators/TreeDumper.py` | **Structured YAML tree dumper** — use when you need deterministic diffs, round-trip experiments, or to compare original vs re-downloaded OLP trees. |
 | `community/OLPTranslators/KUKA/KUKA_KRC5.py` | **Canonical base downloader** — motion FOLDs, position data, event handling |
 | `community/OLPTranslators/ABB/ABB_IRC5.py` | **Advanced multi-plugin** downloader with technology plugins |
+| `community/OLPTranslators/KAWASAKI/KAWASAKI_AS.py` | **Kawasaki AS reference** — read [`references/kawasaki.md`](references/kawasaki.md) before changing it |
 | Obsidian vault `10_API_Reference/Download/` | Full Download API documentation (via `obsidian-e2` MCP) |
 | Obsidian vault `10_API_Reference/OlpCore/` | Core object model — attributes, resources, technologies (via `obsidian-e2` MCP) |
 | `skills/downloader/templates/base_downloader.py` | Minimal starter template |
+
+## Finished Downloader Lifecycle
+
+Use `OLPTranslators/<VENDOR>/` in the starter as the development workspace. Once a general-purpose downloader is tested, documented, and accepted into the community repository, make `community/OLPTranslators/<VENDOR>/` its canonical source and remove the duplicate starter copy. Keep cross-vendor agent guidance in this skill and vendor-specific behavior under `docs/ctrl-specific/<VENDOR>/` or a focused skill reference. Product-release promotion is a separate qualification decision; do not maintain independent community and starter implementations.
+
+## Investigation Workflow
+
+### When to use `Simple_Python_Translator.py`
+
+Use the simple text dumper first for most downloader work:
+
+- New vendor downloader development
+- Missing event handling
+- Position / frame / config / turn questions
+- Signal extraction and resource-port debugging
+- Callback order and ownership questions
+
+It is the fastest way to answer: "Does E2 expose this data to the downloader at all?"
+
+### When to use `TreeDumper.py`
+
+Use the YAML tree dumper when the work needs structure-preserving comparison rather than quick inspection:
+
+- Original vs modified OLP tree diffing
+- Download -> upload -> re-download round-trip analysis
+- Comparing event-owned nested motions
+- Inspecting large programs where text dumps are noisy
+- Building generic parsers or uploaders from a stable schema
+
+### Ownership Check: Downloader vs Technology vs Uploader
+
+If the tree dump shows the data already missing or transformed before vendor emission, the downloader is not the controlling layer.
+
+Typical ownership split:
+
+- Downloader: vendor syntax emission, output ordering, formatting, controller mapping
+- Technology: workmethods, technology-specific events, virtual approach/retract behavior, generated helper motions
+- Uploader: reconstruction of OLP structure from external files or intermediate formats
+
+Practical rule from round-trip experiments:
+
+- If a seam motion keeps Cartesian targets and user events but loses approach/retract technology events, that usually indicates technology-managed regeneration, not a downloader defect.
+- If a touch-sensing reference motion loses `TouchSensingEvent` or nested sensing motions on re-import, that is typically technology-managed behavior and cannot be fixed by downloader emission alone.
 
 ---
 
@@ -506,6 +580,8 @@ class MyDownloader(Downloader):
 9. **Not read-ahead scanning eventsAfter** — Technology events (ArcOn, ArcOff, Accuracy Off) attached to a motion via `eventsAfter` affect how that motion should be output. Scan `motion.GetEventsAfter()` BEFORE outputting the motion to detect LWS/LWE/mode changes.
 
 10. **`GetIndex()` returning large values** — Tool/Base profile indices > 128 mean "not mapped". Check and log an error.
+
+11. **Debugging generated code before checking the OLP tree** — If you do not confirm the structure with `Simple_Python_Translator.py` or `TreeDumper.py`, you can spend hours fixing the wrong layer.
 
 ---
 

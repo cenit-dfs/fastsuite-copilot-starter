@@ -1,0 +1,12 @@
+<Group Name="WeavingExample" Order="90">
+  <Attributes>
+    <Attribute Name="WeavePattern" Order="1" Visibility="true" Icon="" />
+    <Attribute Name="WeaveType" Order="2" Visibility="true" Icon="" />
+    <Attribute Name="WeaveLength" Order="3" Visibility="false" Icon="" />
+    <Attribute Name="WeaveFrequency" Order="4" Visibility="false" Icon="" />
+    <Attribute Name="WeaveDeflection" Order="5" Visibility="false" Icon="" />
+    <Attribute Name="WeaveAngle" Order="6" Visibility="false" Icon="" />
+    <Attribute Name="AdvancedOptions" Order="7" Visibility="true" Icon="" />
+    <Attribute Name="AdvancedDelay" Order="8" Visibility="false" Icon="" />
+  </Attributes>
+</Group>

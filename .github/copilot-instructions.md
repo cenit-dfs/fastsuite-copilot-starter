@@ -22,10 +22,22 @@
 ## API Documentation Context
 Use the `obsidian-e2` MCP server to look up E2 Python API docs. Search the vault for the relevant classes and callbacks.
 
+## API Authority
+
+Use these sources with explicit precedence:
+
+- **`typings/` is authoritative** for Python package surface that exists in this repo: class names, method names, signatures, argument order, return types, enum members, and writable object methods.
+- **Obsidian MCP is authoritative** for lifecycle order, callback semantics, behavioral patterns, gotchas, and technology operator APIs that do not yet have stubs in `typings/`.
+- If both sources cover the same stubbed API surface and disagree, prefer `typings/` first, then confirm with repo code or runtime behavior.
+- For Technology scripting, Obsidian currently has higher authority for many operator APIs because technology stubs are still incomplete.
+
+Short rule: **signatures from `typings/`; behavior from Obsidian; real runtime/tree dumps break ties.**
+
 ### Downloader Work (`OLPTranslators\*\*.py`)
 - **Primary context:** vault folder `10_API_Reference/Download/` (Download Callback Lifecycle, DULPython* classes)
 - **Core objects:** vault folder `10_API_Reference/OlpCore/` (OlpCorePython* classes, Attributes, Enumerations)
 - Use when working on: vendor-specific download scripts
+- Read `skills/downloader/references/<vendor>.md` when present; Kawasaki work requires `skills/downloader/references/kawasaki.md`.
 - **DO NOT MODIFY:** downloadStarter.py, downloader.py (E2 installation files)
 
 ### Uploader Work (`OLPTranslators\*\*.py`)
@@ -73,8 +85,9 @@ Use the `obsidian-e2` MCP server to look up E2 Python API docs. Search the vault
 
 ## Skills & Agent Modes
 - **Downloader skill**: `skills/downloader/SKILL.md` — comprehensive guide for creating/modifying OLP downloaders (lifecycle, API reference, event handling, position output, common mistakes). Use when working on any `OLPTranslators/**/*.py` file.
+- **Downloader vendor references**: `skills/downloader/references/` — focused controller rules shared by GitHub Copilot and Codex.
 - **Base template**: `skills/downloader/templates/base_downloader.py` — minimal working starter downloader with all callbacks stubbed.
-- **Technology skill**: `skills/technology/SKILL.md` — guide for technology UI customization (planned).
+- **Technology skill**: `skills/technology/SKILL.md` — maintained workflow for attributes, UI/NLS, events/rules, compute-time generation, and process-geometry import; read its task-specific reference before editing Technology code.
 - **Agent modes**: `AGENTS.md` — defines E2Downloader, E2Technology, E2Uploader modes with scoped instructions.
 - **OLP translator rules**: `OLPTranslators/.instructions.md` — scoped coding rules applied automatically when editing translator files.
 

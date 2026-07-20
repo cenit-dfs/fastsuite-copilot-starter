@@ -1,13 +1,13 @@
 ---
-description: "Build a KAWASAKI AS-language OLP downloader from reference dumps, golden files, and the mapping document. Use when: create KAWASAKI downloader, generate KAWASAKI translator, build KAWASAKI download script."
+description: "Maintain or validate the community KAWASAKI AS-language OLP downloader from reference dumps, golden files, and the mapping document."
 agent: "agent"
 model: ["Claude Opus 4 (copilot)", "Claude Sonnet 4 (copilot)"]
 tools: ["search", "editFiles", "runInTerminal"]
 ---
 
-# Build KAWASAKI Downloader
+# Maintain the KAWASAKI AS Downloader
 
-You are building a FASTSUITE E2 OLP downloader that generates Kawasaki AS-language robot programs (.as files) for arc welding with touch sensing.
+You are maintaining the community FASTSUITE E2 downloader that generates Kawasaki AS-language robot programs (`.as`) for arc welding with touch sensing. The canonical implementation already exists; do not scaffold a second long-lived copy in the starter.
 
 ## Step 0 — Read Required Context
 
@@ -16,25 +16,27 @@ Before writing any code, read these files **in full**:
 1. **Downloader skill** — lifecycle, API reference, event handling, common mistakes, advanced patterns:
    [SKILL.md](../../skills/downloader/SKILL.md)
 
-2. **Kawasaki-specific rules** — BoolAttribute trap, unit conversions, buffered motion pattern, state machine:
-   [.instructions.md](../../OLPTranslators/KAWASAKI/.instructions.md)
+2. **Kawasaki-specific rules** — ownership, BoolAttribute trap, units, buffering, and state-machine invariants:
+   [kawasaki.md](../../skills/downloader/references/kawasaki.md)
 
-3. **Mapping document** — the Rosetta Stone connecting API data to Kawasaki output (sections 1–26):
+3. **Canonical downloader** — maintained implementation:
+   [KAWASAKI_AS.py](../../community/OLPTranslators/KAWASAKI/KAWASAKI_AS.py)
+
+4. **Mapping document** — the Rosetta Stone connecting API data to Kawasaki output (sections 1–26):
    [MAPPING.md](../../community/scenarios/ArcWeldingTechnology/KAWASAKI/Standard/MAPPING.md)
 
-4. **Simplest golden file** — expected output for basic motions (no welding, no touch):
+5. **Simplest golden file** — expected output for basic motions (no welding, no touch):
    [PG06_BASIC.as](../../community/scenarios/ArcWeldingTechnology/KAWASAKI/Standard/golden/PG06_BASIC.as)
 
-5. **Simplest reference dump** — annotated API data that produced PG06_BASIC:
+6. **Simplest reference dump** — annotated API data that produced PG06_BASIC:
    [PG06_BASIC.txt](../../community/scenarios/ArcWeldingTechnology/KAWASAKI/Standard/reference/PG06_BASIC.txt)
 
-6. **Base template** — starter downloader with all callbacks stubbed:
+7. **Base template** — structural comparison only; do not overwrite the canonical implementation:
    [base_downloader.py](../../skills/downloader/templates/base_downloader.py)
 
-## Step 1 — Scaffold
+## Step 1 — Establish the Change Scope
 
-Create `OLPTranslators/KAWASAKI/KAWASAKI.py` by copying the base template.
-Rename the class to `KAWASAKI`, set `FILE_EXTENSION = '.as'`, update `DOWNLOAD_CLASS_NAME`.
+Work from `community/OLPTranslators/KAWASAKI/KAWASAKI_AS.py` only when the user explicitly requests a community contribution. For exploratory development, a temporary starter copy may be created from that canonical file, but remove it after the accepted change is returned to community. Keep `DOWNLOAD_CLASS_NAME = "KAWASAKI_AS"` aligned with class `KAWASAKI_AS` and filename `KAWASAKI_AS.py`.
 
 ## Step 2 — Implement Basic Motion (PG06_BASIC)
 
@@ -123,12 +125,13 @@ Programs in order of complexity:
 6. PG05_3PFR — 3-point frame touch reference
 7. PG03_SE — TRSUB, signals, ArcWeldCondition, sensing, RTPM, LT, crater
 
-Run syntax check: `python -c "import ast; ast.parse(open(r'OLPTranslators/KAWASAKI/KAWASAKI.py').read()); print('Syntax OK')"`
+Run syntax check: `python -c "import ast; ast.parse(open(r'community/OLPTranslators/KAWASAKI/KAWASAKI_AS.py').read()); print('Syntax OK')"`
 
 ## Critical Rules
 
-- Output file goes to `OLPTranslators/KAWASAKI/KAWASAKI.py`
-- Never modify files in `skills/`, `community/`, `docs/`, or `typings/`
+- Canonical source is `community/OLPTranslators/KAWASAKI/KAWASAKI_AS.py`; do not retain a duplicate starter implementation.
+- Modify `community/` only when the user explicitly requests a community contribution. Keep skills and controller documentation in the starter repository.
+- Never modify `typings/` merely to make downloader code pass.
 - Never modify E2 installation files (downloadStarter.py, downloader.py)
 - Use `operator.GetLogOperator().LogDebug()` for debug logging, not `print()`
 - **BoolAttribute.GetValue() returns Python `bool`** — always use `str(attr.GetValue()) == 'True'`

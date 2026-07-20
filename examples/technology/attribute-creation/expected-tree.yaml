@@ -1,0 +1,13 @@
+assertions:
+  - owner: program_or_global
+    name: MyIntAttribute
+    type: Int
+    value: 0
+  - owner: operation
+    name: ProcGeoName
+    type: String
+    read_only: true
+  - owner: operation
+    names: [Has_Speed, Speed, Has_Wait, Wait]
+    read_only: true
+status: expected_not_yet_captured

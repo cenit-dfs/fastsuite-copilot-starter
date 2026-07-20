@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<PackageDefinition>
+  <Name>ATOL point</Name>
+  <PackageId>AtolPoint</PackageId>
+  <IconName>Points</IconName>
+  <PackageFile>InitPkg.py</PackageFile>
+  <GeoType>Point</GeoType>
+</PackageDefinition>

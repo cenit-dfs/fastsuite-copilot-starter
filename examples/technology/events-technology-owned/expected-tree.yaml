@@ -1,0 +1,5 @@
+registration_owner: technology
+rule: ApproachRule
+event: FourPointApproach
+active: true
+status: expected_not_yet_captured

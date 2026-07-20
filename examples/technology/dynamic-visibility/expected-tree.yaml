@@ -1,0 +1,8 @@
+visibility_matrix:
+  - when: {WeavePattern: None, AdvancedOptions: false}
+    visible: [WeavePattern, WeaveType, AdvancedOptions]
+  - when: {WeavePattern: Triangle, WeaveType: Weave length, AdvancedOptions: false}
+    visible: [WeavePattern, WeaveType, WeaveLength, WeaveDeflection, WeaveAngle, AdvancedOptions]
+  - when: {WeavePattern: Triangle, WeaveType: Frequency, AdvancedOptions: true}
+    visible: [WeavePattern, WeaveType, WeaveFrequency, WeaveDeflection, WeaveAngle, AdvancedOptions, AdvancedDelay]
+status: expected_not_yet_captured

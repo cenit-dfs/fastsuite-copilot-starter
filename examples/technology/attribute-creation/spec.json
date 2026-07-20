@@ -1,0 +1,17 @@
+{
+  "$schema": "../schemas/attributes-spec.schema.json",
+  "spec_version": 1,
+  "example_id": "technology-attribute-creation",
+  "target_release": "FASTSUITE E2 R2026.1",
+  "owner": "technology-and-workmethod",
+  "callbacks": ["PostTechInitAttributes", "PostWmInitAttributes", "PostWmSyncPgAttributes"],
+  "attributes": [
+    {"name": "MyIntAttribute", "type": "Int", "scope": "technology", "nls_key": "MyIntAttribute"},
+    {"name": "ProcGeoName", "type": "String", "scope": "workmethod", "nls_key": "ProcGeoName"},
+    {"name": "Has_Speed", "type": "Bool", "scope": "workmethod", "nls_key": "Has_Speed"},
+    {"name": "Speed", "type": "Double", "scope": "workmethod", "nls_key": "Speed"},
+    {"name": "Has_Wait", "type": "Bool", "scope": "workmethod", "nls_key": "Has_Wait"},
+    {"name": "Wait", "type": "Double", "scope": "workmethod", "nls_key": "Wait"}
+  ],
+  "runtime_validation": "pending"
+}

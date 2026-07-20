@@ -1,0 +1,6 @@
+registration_owner: workmethod
+workmethod: PointWorkMethod
+rule: ApproachRule
+event: FourPointApproach
+active: true
+status: expected_not_yet_captured

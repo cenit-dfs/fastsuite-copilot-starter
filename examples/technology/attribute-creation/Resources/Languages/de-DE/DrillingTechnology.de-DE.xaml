@@ -1,0 +1,11 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <sys:String x:Key="ResourceDictionaryName">Loc-de-DE</sys:String>
+  <sys:String x:Key="MyIntAttribute">Beispiel-Ganzzahl</sys:String>
+  <sys:String x:Key="ProcGeoName">Prozessgeometrie</sys:String>
+  <sys:String x:Key="Has_Speed">Importierte Geschwindigkeit vorhanden</sys:String>
+  <sys:String x:Key="Speed">Importierte Geschwindigkeit</sys:String>
+  <sys:String x:Key="Has_Wait">Importierte Wartezeit vorhanden</sys:String>
+  <sys:String x:Key="Wait">Importierte Wartezeit</sys:String>
+</ResourceDictionary>

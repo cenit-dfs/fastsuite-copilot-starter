@@ -21,7 +21,7 @@ Current limitations:
 ## Phase 1: YAML Tree Dumper Translator
 
 ### Goal
-New translator `OLPTranslators/TreeDumper/TreeDumper.py` that outputs `.yaml` files with **complete** OLP tree data.
+New translator `OLPTranslators/TreeDumper.py` that outputs `.yaml` files with **complete** OLP tree data.
 
 ### Output Structure (target)
 
@@ -228,7 +228,7 @@ Key change: `olp_property` as a list instead of pipe-delimited string — much e
 
 | # | Task | Effort |
 |---|---|---|
-| 1.1 | Scaffold `OLPTranslators/TreeDumper/TreeDumper.py` with all callbacks | S |
+| 1.1 | Scaffold `OLPTranslators/TreeDumper.py` with all callbacks | S |
 | 1.2 | Implement YAML string builder (indent-aware, type-safe) | M |
 | 1.3 | Implement `OutputHeader` — controller, joints, profiles, resources, ports | M |
 | 1.4 | Implement `ProgramStart/End` — program attributes, base/tool profiles | S |

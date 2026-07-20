@@ -1,0 +1,11 @@
+{
+  "$schema": "../schemas/process-geometry-spec.schema.json",
+  "spec_version": 1,
+  "example_id": "drilling-process-geometry-import",
+  "target_release": "FASTSUITE E2 R2026.1",
+  "source_units": "millimetres",
+  "rotation_order": "Rx * Ry * Rz",
+  "pending_modifiers": ["Speed", "Wait"],
+  "phases": ["import", "workmethod-sync", "autoexecute"],
+  "runtime_validation": "pending"
+}

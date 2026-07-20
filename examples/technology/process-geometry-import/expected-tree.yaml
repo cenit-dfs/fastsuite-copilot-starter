@@ -1,0 +1,14 @@
+process_geometries:
+  - index: 1
+    position_m: [0.1, 0.2, 0.3]
+    attributes: {Has_Speed: true, Speed: 0.3, Has_Wait: true, Wait: 1.5}
+  - index: 2
+    position_m: [0.4, 0.5, 0.6]
+    attributes: {Has_Speed: false, Has_Wait: false}
+  - index: 3
+    position_m: [0.7, 0.8, 0.9]
+    attributes: {Has_Speed: true, Speed: 0.0, Has_Wait: true, Wait: 0.0}
+programming:
+  operation_attributes: [ProcGeoName, Has_Speed, Speed, Has_Wait, Wait]
+  autoexecute_events: [Speed, Dwell]
+status: expected_not_yet_captured

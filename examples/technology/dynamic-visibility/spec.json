@@ -1,0 +1,19 @@
+{
+  "$schema": "../schemas/attributes-spec.schema.json",
+  "spec_version": 1,
+  "example_id": "technology-dynamic-visibility",
+  "target_release": "FASTSUITE E2 R2026.1",
+  "owner": "technology",
+  "callbacks": ["PostTechInitAttributes", "PostTechOnAttribChanged"],
+  "attributes": [
+    {"name": "WeavePattern", "type": "Enum", "scope": "technology", "initial_visibility": true},
+    {"name": "WeaveType", "type": "Enum", "scope": "technology", "initial_visibility": true},
+    {"name": "WeaveLength", "type": "Double", "scope": "technology", "initial_visibility": false},
+    {"name": "WeaveFrequency", "type": "Double", "scope": "technology", "initial_visibility": false},
+    {"name": "WeaveDeflection", "type": "Double", "scope": "technology", "initial_visibility": false},
+    {"name": "WeaveAngle", "type": "Double", "scope": "technology", "initial_visibility": false},
+    {"name": "AdvancedOptions", "type": "Bool", "scope": "technology", "initial_visibility": true},
+    {"name": "AdvancedDelay", "type": "Double", "scope": "technology", "initial_visibility": false}
+  ],
+  "runtime_validation": "pending"
+}

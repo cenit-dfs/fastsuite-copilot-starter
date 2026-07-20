@@ -1,0 +1,17 @@
+<TechTab Name="DrillingMethod" Order="20" Visibility="true" Icon="Drilling">
+  <Containers>
+    <Container Name="ImportedPointData" Order="1" Visibility="true" Icon="Preparations">
+      <Groups>
+        <Group Name="ImportedPointAttributes" Order="1">
+          <Attributes>
+            <Attribute Name="ProcGeoName" Order="1" Visibility="true" Icon="" />
+            <Attribute Name="Has_Speed" Order="2" Visibility="true" Icon="" />
+            <Attribute Name="Speed" Order="3" Visibility="true" Icon="Velocity" />
+            <Attribute Name="Has_Wait" Order="4" Visibility="true" Icon="" />
+            <Attribute Name="Wait" Order="5" Visibility="true" Icon="Time" />
+          </Attributes>
+        </Group>
+      </Groups>
+    </Container>
+  </Containers>
+</TechTab>
