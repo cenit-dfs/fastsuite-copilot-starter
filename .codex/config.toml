@@ -1,0 +1,4 @@
+[mcp_servers.obsidian-e2]
+enabled = true
+url = "http://127.0.0.1:27200/mcp"
+bearer_token_env_var = "OBSIDIAN_MCP_TOKEN"
