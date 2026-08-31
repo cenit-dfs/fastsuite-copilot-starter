@@ -130,7 +130,37 @@ git submodule update --init
 - If you want to contribute improvements, see [Contributing](contributing.md)
 
 ---
+## Private Branch Push Guardrail
 
+This repo blocks pushing any `private/*` branch (in this repo or in `community/`) via a shared `pre-push` hook — private branches are meant to stay local until they're squash-merged and scrubbed onto a `publish/*` branch. This is enforced at the git level, not just documented, so it protects against mistakes by any agent, harness, or person.
+
+### One-Time Setup (per clone, per repo)
+
+`core.hooksPath` is local git config — it isn't cloned automatically, so run this once after cloning (and again after cloning the `community` submodule):
+
+```powershell
+# In the repo root
+git config core.hooksPath .githooks
+
+# In the community submodule (needs an absolute path since it's a separate repo)
+cd community
+git config core.hooksPath "$((Resolve-Path ..).Path -replace '\\','/')/.githooks"
+cd ..
+```
+
+### Verify It's Working
+
+```powershell
+git checkout -b private/test
+git push --dry-run origin private/test
+# Expect: "pre-push: blocked — 'private/*' branches must stay local ..."
+git checkout master
+git branch -d private/test
+```
+
+See [.github/copilot-instructions.md](../../.github/copilot-instructions.md) (Safety section) for the full rule this hook enforces.
+
+---
 ## Common Situations
 
 ### "I made a mess and want to start over on a file"

@@ -28,6 +28,15 @@ git submodule update --init
 
 The `community/` folder will be populated with reference downloaders and examples.
 
+Enable the repo's safety pre-push hook, which blocks accidentally pushing `private/*` branches (see [Git Essentials](docs/workshop/git-essentials.md#private-branch-push-guardrail)):
+
+```bash
+git config core.hooksPath .githooks
+cd community
+git config core.hooksPath "$(cd .. && pwd)/.githooks"
+cd ..
+```
+
 ### 3. Configure E2 Path
 
 Edit `.vscode/settings.json` and update the E2 installation path:

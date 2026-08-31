@@ -120,6 +120,14 @@ You now have your own repository at `https://github.com/<your-account>/<your-rep
    ```
    This downloads the reference downloaders into the `community/` folder.
 
+6. Enable the safety pre-push hook (blocks accidentally pushing `private/*` branches — see [Git Essentials](git-essentials.md#private-branch-push-guardrail)):
+   ```powershell
+   git config core.hooksPath .githooks
+   cd community
+   git config core.hooksPath "$((Resolve-Path ..).Path -replace '\\','/')/.githooks"
+   cd ..
+   ```
+
 ---
 
 ## Step 7 — Configure for Your E2 Installation
