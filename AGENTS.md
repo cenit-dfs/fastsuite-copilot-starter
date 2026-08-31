@@ -9,6 +9,7 @@ This repository supports both GitHub Copilot and Codex. Both harnesses must foll
 - For downloader, uploader, or technology work, read the corresponding `skills/<mode>/SKILL.md` completely before making task changes.
 - The mode-specific workflows below supplement the shared policy; they do not replace or weaken it.
 - When instructions overlap, follow the more specific applicable instruction. A safety restriction always remains in force.
+- **Never push any `private/*` branch to any remote**, in this repo or the `community` submodule. These are local-only working branches used while iterating in private; only `publish/*` branches (after the squash/scrub workflow) may be pushed. A `pre-push` hook (`.githooks/pre-push`, wired via `core.hooksPath`) blocks this at the git level as a backstop — do not treat the hook's existence as a reason to skip this rule.
 
 Codex must explicitly load these referenced files because `.github/copilot-instructions.md` and `*.instructions.md` are GitHub Copilot instruction surfaces. GitHub Copilot should continue to use those files through its native repository-instruction handling.
 
