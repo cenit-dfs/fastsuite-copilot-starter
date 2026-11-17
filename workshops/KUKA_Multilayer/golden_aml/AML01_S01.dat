@@ -1,0 +1,20 @@
+&ACCESS RVP
+&REL 10
+&PARAM EDITMASK = *
+DEFDAT AML01_S01
+; KRC4
+; AML GOLDEN - hand-authored, not emitter output
+; status: synthesized-unvalidated
+DECL E6POS XP001={X 1000.000000,Y 500.000000,Z 300.000000,A 0.000000,B 45.000000,C 0.000000,S 2,T 34,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL E6POS XP002={X 1100.000000,Y 500.000000,Z 300.000000,A 0.000000,B 45.000000,C 0.000000,S 2,T 34,E1 0.0,E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}
+DECL LDAT LCPDATP001={VEL 0.5,ACC 100.0,APO_DIST 10,APO_FAC 50.0,AXIS_VEL 100.0,AXIS_ACC 100.0,ORI_TYP #VAR,CIRC_TYP #BASE,JERK_FAC 50.0000,GEAR_JERK 100.000,EXAX_IGN 0}
+DECL LDAT LCPDATP002={VEL 0.5,ACC 100.0,APO_DIST 10,APO_FAC 50.0,AXIS_VEL 100.0,AXIS_ACC 100.0,ORI_TYP #VAR,CIRC_TYP #BASE,JERK_FAC 50.0000,GEAR_JERK 100.000,EXAX_IGN 0}
+DECL FDAT FP001={TOOL_NO 1,BASE_NO 5,IPO_FRAME #BASE,POINT2[] " "}
+DECL FDAT FP002={TOOL_NO 1,BASE_NO 5,IPO_FRAME #BASE,POINT2[] " "}
+DECL stArcDat_T WDAT01_01_050={WdatId[] "WDAT01_01_050",Strike {JobModeId[] "Jobmodus",ParamSetId[] "Set1",StartTime 0.00,PreFlowTime 0.00,Channel1 1.0, Channel2 0.0, Channel3 0.0, Channel4 0.0, Channel5 0.0, Channel6 0.0, Channel7 0.0, Channel8 0.0,PurgeTime 0.00},Weld {JobModeId[] "Jobmodus",ParamSetId[] "Set1",Velocity 0.00800000,Channel1 1.0, Channel2 0.0, Channel3 0.0, Channel4 0.0, Channel5 0.0, Channel6 0.0, Channel7 0.0, Channel8 0.0},Weave {Pattern #None,Length 4.00,Amplitude 2.00,Angle 0.00,Frequency 1.00,LeftSideDelay 0.0,RightSideDelay 0.0},Crater {JobModeId[] "Jobmodus",ParamSetId[] "Set2",CraterTime 0.00,PostflowTime 0.00, Channel1 1.0, Channel2 0.0, Channel3 0.0, Channel4 0.0, Channel5 0.0, Channel6 0.0, Channel7 0.0, Channel8 0.0,BurnBackTime 0.0},Advanced {IgnitionErrorStrategy 1,WeldErrorStrategy 1,SlopeOption #None,SlopeTime 0.0,SlopeDistance 0.0,OnTheFlyActiveOn FALSE,OnTheFlyActiveOff FALSE,OnTheFlyDistanceOn 0.0,OnTheFlyDistanceOff 0.0}}
+DECL stArcDat_T WP001={WdatId[] "WP001",Info {Version 307020112},Strike {SeamName[] " ",PartName[] " ",SeamNumber 0,PartNumber 0,DesiredLength 0.0,LengthTolNeg 0.0,LengthTolPos 0.0,LengthCtrlActive FALSE},Advanced {BitCodedRobotMark 0},MultiLayer {OP #ARC,SPos {X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0},SBase {C 0.0},EPos {C 0.0},CPos {C 0.0},ActPos {X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0,S 'B0010',T 'B00100010'}}}
+DECL stArcDat_T WP002={WdatId[] "WP002",Info {Version 307020112},MultiLayer {OP #ARC,SPos {X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0},SBase {C 0.0},EPos {C 0.0},CPos {C 0.0},ActPos {X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0,S 'B0010',T 'B00100010'}}}
+DECL stAmlInfo_T AmlInfo={Info[] " ",MaxLayer 1}
+DECL FRAME LayerOffset1={X 0.000000,Y 1.500000,Z 3.000000,A 0.000000,B 0.000000,C -5.000000}
+DECL stArcDat_T L1_WDAT02_01_050={Strike {JobModeId[] "Jobmodus",ParamSetId[] "Set1",StartTime 0.00,PreFlowTime 0.00,Channel1 1.0, Channel2 0.0, Channel3 0.0, Channel4 0.0, Channel5 0.0, Channel6 0.0, Channel7 0.0, Channel8 0.0,PurgeTime 0.00},Weld {JobModeId[] "Jobmodus",ParamSetId[] "Set1",Velocity 0.00800000,Channel1 1.0, Channel2 0.0, Channel3 0.0, Channel4 0.0, Channel5 0.0, Channel6 0.0, Channel7 0.0, Channel8 0.0},Weave {Pattern #None,Length 4.00,Amplitude 2.00,Angle 0.00,Frequency 1.00,LeftSideDelay 0.0,RightSideDelay 0.0},Crater {JobModeId[] "Jobmodus",ParamSetId[] "Set2",CraterTime 0.00,PostflowTime 0.00, Channel1 1.0, Channel2 0.0, Channel3 0.0, Channel4 0.0, Channel5 0.0, Channel6 0.0, Channel7 0.0, Channel8 0.0,BurnBackTime 0.0},Advanced {IgnitionErrorStrategy 1,WeldErrorStrategy 1,SlopeOption #None,SlopeTime 0.0,SlopeDistance 0.0,OnTheFlyActiveOn FALSE,OnTheFlyActiveOff FALSE,OnTheFlyDistanceOn 0.0,OnTheFlyDistanceOff 0.0}}
+ENDDAT

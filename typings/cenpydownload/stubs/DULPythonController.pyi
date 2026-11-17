@@ -1,5 +1,5 @@
 """
-Automatically generated module. COPYRIGHT CENIT AG 2024.
+Automatically generated module. COPYRIGHT CENIT AG 2026.
 """
 
 from .DULPythonProgram import *
@@ -27,6 +27,18 @@ class DULPythonController(OlpCorePythonController):
          
          Returns:
             returns the path to the controller's temporary output directory
+         """
+         ...
+      
+      def GetTechTabFolder(self   , relativePath: str) -> str:
+         """Gets the technology table folder
+      If the relative path contains a file name with extension then it will return the path to that file
+         
+         Args:
+            relativePath: Relative path or only filename to search for in plug-in folders
+         
+         Returns:
+            technology table folder or TechTab file location
          """
          ...
       

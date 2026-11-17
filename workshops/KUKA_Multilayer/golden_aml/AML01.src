@@ -1,0 +1,134 @@
+&ACCESS RVP
+&REL 10
+&PARAM EDITMASK = *
+DEF AML01( )
+; KRC4
+;FOLD BASISTECH INI
+  GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+  INTERRUPT ON 3 
+  BAS (#INITMOV,0 )
+;ENDFOLD (BASISTECH INI)
+
+;***************************************************
+; PROGRAM         = AML01.src
+; MANUFACTURER    = Kuka
+; SERIES          = 
+; CREATE          = DATE 26-09-01 TIME 12:00:00
+; MODIFIED        = DATE 26-09-01 TIME 12:00:00
+; VERSION         = 1.2
+; Downloader      = KUKA_KRC5_Arc_Welding.py
+; User            = E2
+;***************************************************
+; KSS Version     = 8.7
+;***************************************************
+; ArcTech Version       = 3.7.2.112
+; ArcTech Adv. Ver.     = 3.7.1.9
+; ArcTechSense Ver.     = 3.7.1
+; TouchSense Ver.       = 3.8.1.0
+; SeamTechFinding Ver.  = 3.5.0
+; SeamTechTracking Ver. = 3.5.0
+;***************************************************
+; AML GOLDEN - hand-authored, not emitter output
+; status: synthesized-unvalidated
+;***************************************************
+
+; Operation group:  GRP001
+
+;FOLD PTP P001 CONT Vel=50 % PDATP001 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=P001; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATP001; Kuka.VelocityPtp=50; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  PDAT_ACT = PPDATP001
+  FDAT_ACT = FP001
+  BAS(#PTP_PARAMS,50.0)
+  SET_CD_PARAMS (0)
+  PTP XP001 C_DIS 
+;ENDFOLD
+
+; Seam: S01 - approach root pass
+
+;FOLD LIN P002 CONT Vel=0.5 m/s CPDATP002 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=P002; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDATP002; Kuka.VelocityPath=0.500; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=LIN
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  LDAT_ACT = LCPDATP002
+  FDAT_ACT = FP002
+  BAS(#CP_PARAMS,0.5)
+  SET_CD_PARAMS (0)
+  LIN XP002 C_DIS 
+;ENDFOLD
+
+;FOLD ArcTech Call <AML01_S01> Layer: <Root> ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=KukaRoboter.ArcTech.Multilayer.Selector; ArcTech.Multilayer.SelectedModule=AML01_S01; ArcTech.Multilayer.SelectedLayer=0; ArcTech.Basic=3.7.2.112; ArcTech.Multilayer=3.7.1.4
+  ;ENDFOLD
+  gAmlStartLayer=0
+  gAmlEndLayer=0
+  FOR gAmlSelectLayer = gAmlStartLayer TO gAmlEndLayer
+    AML01_S01()
+  ENDFOR
+;ENDFOLD  ;%{V}
+
+;FOLD LIN P003 CONT Vel=0.5 m/s CPDATP003 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=P003; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDATP003; Kuka.VelocityPath=0.500; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=LIN
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  LDAT_ACT = LCPDATP003
+  FDAT_ACT = FP003
+  BAS(#CP_PARAMS,0.5)
+  SET_CD_PARAMS (0)
+  LIN XP003 C_DIS 
+;ENDFOLD
+
+; Seam: S01 - approach filler pass 1
+
+;FOLD LIN P004 CONT Vel=0.5 m/s CPDATP004 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=P004; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDATP004; Kuka.VelocityPath=0.500; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=LIN
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  LDAT_ACT = LCPDATP004
+  FDAT_ACT = FP004
+  BAS(#CP_PARAMS,0.5)
+  SET_CD_PARAMS (0)
+  LIN XP004 C_DIS 
+;ENDFOLD
+
+;FOLD ArcTech Call <AML01_S01> Layer: 1 ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=KukaRoboter.ArcTech.Multilayer.Selector; ArcTech.Multilayer.SelectedModule=AML01_S01; ArcTech.Multilayer.SelectedLayer=1; ArcTech.Basic=3.7.2.112; ArcTech.Multilayer=3.7.1.4
+  ;ENDFOLD
+  gAmlStartLayer=1
+  gAmlEndLayer=1
+  FOR gAmlSelectLayer = gAmlStartLayer TO gAmlEndLayer
+    AML01_S01()
+  ENDFOR
+;ENDFOLD  ;%{V}
+
+;FOLD LIN P005 CONT Vel=0.5 m/s CPDATP005 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=P005; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDATP005; Kuka.VelocityPath=0.500; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=LIN
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  LDAT_ACT = LCPDATP005
+  FDAT_ACT = FP005
+  BAS(#CP_PARAMS,0.5)
+  SET_CD_PARAMS (0)
+  LIN XP005 C_DIS 
+;ENDFOLD
+
+;FOLD PTP P006 CONT Vel=50 % PDATP006 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=P006; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATP006; Kuka.VelocityPtp=50; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  PDAT_ACT = PPDATP006
+  FDAT_ACT = FP006
+  BAS(#PTP_PARAMS,50.0)
+  SET_CD_PARAMS (0)
+  PTP XP006 C_DIS 
+;ENDFOLD
+END

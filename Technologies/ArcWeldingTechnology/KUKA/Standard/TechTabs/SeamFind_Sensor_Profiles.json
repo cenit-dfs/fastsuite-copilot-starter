@@ -1,0 +1,28 @@
+{
+  "sensors": [
+    {
+      "id": 1,
+      "display_name": "LineLaser"
+    }
+  ],
+  "profiles": [
+    {
+      "name": "Example_Left45",
+      "ALONG": "CDa",
+      "LATERAL": "CDa",
+      "HEIGHT": "CDb"
+    },
+    {
+      "name": "Example_Right45",
+      "ALONG": "CDa",
+      "LATERAL": "CDd",
+      "HEIGHT": "CDb"
+    },
+    {
+      "name": "Example_Top",
+      "ALONG": "CDh",
+      "LATERAL": "CDh",
+      "HEIGHT": "CDv"
+    }
+  ]
+}

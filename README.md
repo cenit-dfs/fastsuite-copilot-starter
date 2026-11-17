@@ -180,6 +180,7 @@ New to E2 customization or Git? Start here:
 |-------|-------------|
 | [Getting Started](docs/workshop/getting-started.md) | Install everything, create your repo, first-time setup |
 | [Daily Workflow](docs/workshop/daily-workflow.md) | Create downloaders, test, commit — your everyday loop |
+| [Loop Engineering Case Study](docs/workshop/loop-engineering-case-study.mdx) | Design faster, production-faithful feedback loops and reusable development tools |
 | [Git Essentials](docs/workshop/git-essentials.md) | Only the Git commands you actually need |
 | [Contributing](docs/workshop/contributing.md) | Share your work back to the community |
 

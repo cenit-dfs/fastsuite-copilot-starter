@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <sys:String x:Key="ResourceDictionaryName">Loc-en-US</sys:String>
+  <!-- Section 8.2 - user-facing program/operation attributes -->
+  <sys:String x:Key="MultiLayerOutputMode">Multilayer output mode</sys:String>
+  <sys:String x:Key="MultiLayerSequenceMode">Multilayer sequence mode</sys:String>
+  <sys:String x:Key="MultiLayerDirectionMode">Multilayer direction mode</sys:String>
+  <sys:String x:Key="MultiLayerDirectionOverride">Multilayer direction override</sys:String>
+  <sys:String x:Key="KukaArcTechMultilayerInstalled">ArcTech Multilayer installed</sys:String>
+  <sys:String x:Key="KukaArcTechMultilayerVersion">ArcTech Multilayer version</sys:String>
+  <!-- Section 8.3 - stable read-only resolver output, hidden but still resource-backed -->
+  <sys:String x:Key="MultiLayerMetadataVersion">Multilayer metadata version</sys:String>
+  <sys:String x:Key="MultiLayerUsesProcessTable">Multilayer uses process table</sys:String>
+  <sys:String x:Key="MultiLayerWpsMainId">Multilayer WPS main ID</sys:String>
+  <sys:String x:Key="MultiLayerWpsSubId">Multilayer WPS sub ID</sys:String>
+  <sys:String x:Key="MultiLayerWpsName">Multilayer WPS name</sys:String>
+  <sys:String x:Key="MultiLayerLayerNumber">Multilayer layer number</sys:String>
+  <sys:String x:Key="MultiLayerBeadNumber">Multilayer bead number</sys:String>
+  <sys:String x:Key="MultiLayerFlatPassIndex">Multilayer flat pass index</sys:String>
+  <sys:String x:Key="MultiLayerSeamUuid">Multilayer seam UUID</sys:String>
+  <sys:String x:Key="MultiLayerRecipeFingerprint">Multilayer recipe fingerprint</sys:String>
+  <sys:String x:Key="MultiLayerRecipeState">Multilayer recipe state</sys:String>
+</ResourceDictionary>
