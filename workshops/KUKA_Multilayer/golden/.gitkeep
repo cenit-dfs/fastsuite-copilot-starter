@@ -1,0 +1,4 @@
+Phase C baseline: native downloader output captured BEFORE any Multilayer downloader change.
+Anything committed here is a self-comparison reference (spec section 16, Phase C).
+AML goldens live in ../golden_aml/ and are hand-authored, not captured.
+*.src and *.dat are globally ignored; this folder is re-included in .gitignore.

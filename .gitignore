@@ -22,6 +22,11 @@ Desktop.ini
 
 # Exception: golden files are intentionally committed
 !**/tests/golden/**
+!workshops/**/golden/**
+!workshops/**/golden_aml/**
 
 # Test output (regenerated on each download — compare against golden/)
 **/tests/output/
+
+# Dev-loop watcher working state (trigger/status files, copied output) — see skills/downloader/templates/dev_loop_watcher.py
+.agent-dev/

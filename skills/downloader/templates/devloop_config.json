@@ -1,0 +1,11 @@
+{
+   "workspace_root": "REPLACE_WITH_ABSOLUTE_REPO_PATH",
+   "watch_files": [
+      "OLPTranslators/<VENDOR>/<VENDOR>_downloader.py"
+   ],
+   "program_names": ["<active>"],
+   "poll_interval_ms": 1000,
+   "trigger_file": ".agent-dev/<instance>/trigger.json",
+   "status_file": ".agent-dev/<instance>/status.json",
+   "output_copy_dir": ".agent-dev/<instance>/output"
+}

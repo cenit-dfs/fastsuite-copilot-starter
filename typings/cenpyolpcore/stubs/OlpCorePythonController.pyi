@@ -1,5 +1,5 @@
 """
-Automatically generated module. COPYRIGHT CENIT AG 2024.
+Automatically generated module. COPYRIGHT CENIT AG 2026.
 """
 
 
@@ -20,6 +20,14 @@ class OlpCorePythonController(OlpCorePythonItem):
          
          Returns:
             None
+         """
+         ...
+      
+      def GetWeldingDataSetsFromDataBase(self) -> list:
+         """Get defined welding data sets from the weld database of this controller
+         
+         Returns:
+            Defined welding data sets from the weld database of this controller
          """
          ...
       

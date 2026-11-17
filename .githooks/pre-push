@@ -1,0 +1,12 @@
+#!/bin/sh
+# Guardrail: refuse to push any 'private/*' branch to any remote, from any tool/harness.
+# Configured via `git config core.hooksPath` in this repo and the community submodule.
+while read -r local_ref local_sha remote_ref remote_sha; do
+    case "$local_ref$remote_ref" in
+        *refs/heads/private/*)
+            echo "pre-push: blocked — 'private/*' branches must stay local (see .github/copilot-instructions.md Safety section)." >&2
+            exit 1
+            ;;
+    esac
+done
+exit 0

@@ -1,0 +1,3 @@
+AML downloader output for comparison against ../golden_aml/.
+Not committed as truth; regenerate freely.
+Empty until the AML emitter exists (spec section 16, phase D step 4).

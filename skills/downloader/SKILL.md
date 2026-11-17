@@ -79,6 +79,15 @@ Use the YAML tree dumper when the work needs structure-preserving comparison rat
 - Inspecting large programs where text dumps are noisy
 - Building generic parsers or uploaders from a stable schema
 
+### Diffing scenario files across sessions
+
+`community/scenarios/**/*.cendoc` files are Git LFS-tracked (`community/.gitattributes`).
+`git diff`/`git status` on a `.cendoc` only shows the LFS pointer's hash and size changing, never
+the actual attribute/geometry content — it is easy to conclude "nothing changed in the scenario"
+when something did. To see what actually changed, diff the corresponding `reference/*.yaml` or
+`.xml` dump for the same program instead; that text projection of the tree is what shows, e.g., an
+attribute value flipping between captures.
+
 ### Ownership Check: Downloader vs Technology vs Uploader
 
 If the tree dump shows the data already missing or transformed before vendor emission, the downloader is not the controlling layer.
@@ -789,6 +798,20 @@ def _scanTreeForFeature(self, program):
 ---
 
 ## Debugging
+
+### Automated download loops bypass AutoExecute
+
+`controller.DownloadProgramByName()` does **not** run the `AuxiliaryCommands/AutoExecute`
+pipeline that the UI Download button triggers. A dev-loop harness that calls it directly
+therefore exercises a different code path from production, and a passing golden comparison
+proves nothing about the real one.
+
+If the technology does program-wide work before download (for example writing planner results
+into the tree in `PrevProgramDownload.py`), the harness must import and invoke that hook
+explicitly before each `DownloadProgramByName` call.
+
+Symptom: attributes the technology should have written are still at their defaults after an
+automated download, but correct after a manual UI download.
 
 ### Attaching Debugger
 - VS Code: Use the `debugpy attach` launch config (port 5254) while E2 is running

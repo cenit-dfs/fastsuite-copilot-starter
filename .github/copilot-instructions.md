@@ -82,6 +82,7 @@ Short rule: **signatures from `typings/`; behavior from Obsidian; real runtime/t
 - Do not install new Python packages unless explicitly approved.
 - Do not modify files outside the translator/technology scope unless requested.
 - Do not commit or push unless explicitly asked.
+- **Never push any `private/*` branch to any remote** (this repo or the `community` submodule) — these are local-only working branches; only push `publish/*` branches after the squash/scrub workflow. A `pre-push` hook (`.githooks/pre-push`, wired via `core.hooksPath`) enforces this at the git level as a backstop, but agents/harnesses must not rely on the hook and must never attempt the push in the first place.
 
 ## Skills & Agent Modes
 - **Downloader skill**: `skills/downloader/SKILL.md` — comprehensive guide for creating/modifying OLP downloaders (lifecycle, API reference, event handling, position output, common mistakes). Use when working on any `OLPTranslators/**/*.py` file.

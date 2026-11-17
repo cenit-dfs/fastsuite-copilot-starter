@@ -1,0 +1,147 @@
+&ACCESS RVP
+&REL 10
+&PARAM EDITMASK = *
+DEF AML01_S01( )
+; KRC4
+;FOLD BASISTECH INI
+  GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+  INTERRUPT ON 3 
+  BAS (#INITMOV,0 )
+;ENDFOLD (BASISTECH INI)
+
+;***************************************************
+; PROGRAM         = AML01_S01.src
+; MANUFACTURER    = Kuka
+; SERIES          = 
+; CREATE          = DATE 26-09-01 TIME 12:00:00
+; MODIFIED        = DATE 26-09-01 TIME 12:00:00
+; VERSION         = 1.2
+; Downloader      = KUKA_KRC5_Arc_Welding.py
+; User            = E2
+;***************************************************
+; KSS Version     = 8.7
+;***************************************************
+; ArcTech Version       = 3.7.2.112
+; ArcTech Adv. Ver.     = 3.7.1.9
+; ArcTechSense Ver.     = 3.7.1
+; TouchSense Ver.       = 3.8.1.0
+; SeamTechFinding Ver.  = 3.5.0
+; SeamTechTracking Ver. = 3.5.0
+;***************************************************
+; AML GOLDEN - hand-authored, not emitter output
+; status: synthesized-unvalidated
+;***************************************************
+
+; Operation group:  GRP001
+
+;FOLD ArcTech Multilayer Block {AmlInfo.info[]} {gAmlActLayerStr[]} ;%{PO};%{PE} ;FOLD SPLINE MULTILAYER
+;FOLD  ;%{H}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=KukaRoboter.ArcTech.Multilayer.Block; ArcTech.Basic=3.7.2.112; ArcTech.Multilayer=3.7.1.4
+;ENDFOLD
+;FOLD  ;%{h}
+AmlBlockBegin(gAmlSelectLayer, AmlInfo)
+SWITCH gAmlActLayer
+CASE 0
+AmlBlockCaseBegin(gAmlActLayer, AmlInfo)
+;ENDFOLD
+;ENDFOLD
+;FOLD Root Layer ;%{PO}
+
+; Operation: Seam01_Layer1_Bead1
+
+;FOLD ARCON WDAT01_01_050 LIN P001 Vel=0.5 m/s CPDATP001 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.arctech.arconlin; Kuka.IsGlobalPoint=False; Kuka.PointName=P001; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDATP001; Kuka.VelocityPath=0.008; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; ArcTech.WdatVarName=WDAT01_01_050; ArcTech.Basic=3.7.2.112; ArcTech.Advanced=3.7.1.9; ArcTech.Sense=3.7.1; ArcTech.Multilayer=3.7.1.4; ArcTech.ML.Id=78007cee-bb13-5d94-b043-b37467b95f00
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  LDAT_ACT = LCPDATP001
+  FDAT_ACT = FP001
+  BAS(#CP_PARAMS,0.5)
+  SET_CD_PARAMS (0)
+  TRIGGER WHEN DISTANCE = 1 DELAY = ArcGetDelay(#PreDefinition, WDAT01_01_050) DO ArcMainNG(#PreDefinition, WDAT01_01_050, WP001) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOn, WDAT01_01_050) DELAY = ArcGetDelay(#GasPreflow, WDAT01_01_050) DO ArcMainNG(#GasPreflow, WDAT01_01_050, WP001) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOn, WDAT01_01_050) DELAY = ArcGetDelay(#ArcPreOn, WDAT01_01_050) DO ArcMainNG(#ArcOnMoveStd, WDAT01_01_050, WP001) PRIO = -1 
+  ArcMainNG(#ArcOnBeforeMoveStd, WDAT01_01_050, WP001)
+  LIN XP001 
+  ArcMainNG(#ArcOnAfterMoveStd, WDAT01_01_050, WP001)
+  TRIGGER WHEN DISTANCE = 0 DELAY = ArcGetDelay(#MlDelayArcOn, WDAT01_01_050) DO AmlSetPos(#ArcOnMoveStd, WDAT01_01_050, WP001, ) PRIO = -1
+;ENDFOLD
+
+;FOLD ARCOFF WDAT01_01_050 LIN P002 Vel=0.025 m/s CPDATP002 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.arctech.arcofflin; Kuka.IsGlobalPoint=False; Kuka.PointName=P002; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDATP002; Kuka.VelocityPath=0.008; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; ArcTech.WdatVarName=WDAT01_01_050; ArcTech.Basic=3.7.2.112; ArcTech.Advanced=3.7.1.9; ArcTech.Sense=3.7.1; ArcTech.Multilayer=3.7.1.4; ArcTech.ML.Id=99b1ec54-f02c-5196-9ba4-36c4223a64e2
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  LDAT_ACT = LCPDATP002
+  FDAT_ACT = FP002
+  BAS(#CP_PARAMS, gArcBasVelDefinition)
+  SET_CD_PARAMS (0)
+  TRIGGER WHEN PATH = ArcGetPath(#ArcOffBefore, WDAT01_01_050) DELAY = 0 DO ArcMainNG(#ArcOffBeforeOffStd, WDAT01_01_050, WP002) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#ArcOffBefore2, WDAT01_01_050) DELAY = 0 DO ArcMainNG(#ArcOffBeforeOffStd2, WDAT01_01_050, WP002) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOff, WDAT01_01_050) DELAY = 0 DO ArcMainNG(#ArcOffMoveStd, WDAT01_01_050, WP002) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#MlPathArcOff, WDAT01_01_050) DELAY = ArcGetDelay(#MlDelayArcOff, WDAT01_01_050) DO AmlSetPos(#ArcOffMoveStd, WDAT01_01_050, WP002, ) PRIO = -1
+  ArcMainNG(#ArcOffBeforeMoveStd, WDAT01_01_050, WP002)
+  LIN XP002 
+  ArcMainNG(#ArcOffAfterMoveStd, WDAT01_01_050, WP002)
+;ENDFOLD
+;FOLD  ;%{h}
+  AmlBlockCaseEnd(gAmlActLayer, AmlInfo)
+;ENDFOLD
+;ENDFOLD End Root Layer ;%{V}
+;FOLD Layer 1 [-->] {LayerOffset1} ;%{P} ;FOLD SPLINE MULTILAYER
+;FOLD  ;%{H}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=KukaRoboter.ArcTech.Multilayer.Layer; ArcTech.ML.LayerDirection=Direct; ArcTech.ML.LayerNumber=1; ArcTech.ML.LayerFrameShift=LayerOffset1; ArcTech.Basic=3.7.2.112; ArcTech.Multilayer=3.7.1.4
+;ENDFOLD
+CASE 1
+  AmlBlockCaseBegin(gAmlActLayer, AmlInfo)
+;ENDFOLD
+
+; Operation: Seam01_Layer2_Bead1
+
+;FOLD MLARCON L1_WDAT02_01_050 LIN ShiftedP001 Vel=0.5 m/s CPDATP001 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.arctech.arconlin; Kuka.IsGlobalPoint=False; Kuka.PointName=P001; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDATP001; Kuka.VelocityPath=0.008; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; ArcTech.WdatVarName=L1_WDAT02_01_050; ArcTech.Basic=3.7.2.112; ArcTech.Advanced=3.7.1.9; ArcTech.Sense=3.7.1; ArcTech.Multilayer=3.7.1.4; ArcTech.ML.Id=78007cee-bb13-5d94-b043-b37467b95f00
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  LDAT_ACT = LCPDATP001
+  FDAT_ACT = FP001
+  BAS(#CP_PARAMS,0.5)
+  SET_CD_PARAMS (0)
+  TRIGGER WHEN DISTANCE = 1 DELAY = ArcGetDelay(#PreDefinition, L1_WDAT02_01_050) DO ArcMainNG(#PreDefinition, L1_WDAT02_01_050, WP001) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOn, L1_WDAT02_01_050) DELAY = ArcGetDelay(#GasPreflow, L1_WDAT02_01_050) DO ArcMainNG(#GasPreflow, L1_WDAT02_01_050, WP001) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOn, L1_WDAT02_01_050) DELAY = ArcGetDelay(#ArcPreOn, L1_WDAT02_01_050) DO ArcMainNG(#ArcOnMoveStd, L1_WDAT02_01_050, WP001) PRIO = -1 
+  ArcMainNG(#ArcOnBeforeMoveStd, L1_WDAT02_01_050, WP001)
+  LIN AmlGetPos(XP001, LayerOffset1, WP001, AmlInfo, )
+  ArcMainNG(#ArcOnAfterMoveStd, L1_WDAT02_01_050, WP001)
+;ENDFOLD
+
+;FOLD MLARCOFF L1_WDAT02_01_050 LIN ShiftedP002 Vel=0.025 m/s CPDATP002 Tool[1]:Torch Base[5]:Part ;%{PE}
+  ;FOLD Parameters ;%{h}
+    ;Params IlfProvider=kukaroboter.arctech.arcofflin; Kuka.IsGlobalPoint=False; Kuka.PointName=P002; Kuka.BlendingEnabled=True; Kuka.MoveDataName=CPDATP002; Kuka.VelocityPath=0.008; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; ArcTech.WdatVarName=L1_WDAT02_01_050; ArcTech.Basic=3.7.2.112; ArcTech.Advanced=3.7.1.9; ArcTech.Sense=3.7.1; ArcTech.Multilayer=3.7.1.4; ArcTech.ML.Id=99b1ec54-f02c-5196-9ba4-36c4223a64e2
+  ;ENDFOLD
+  $BWDSTART = FALSE
+  LDAT_ACT = LCPDATP002
+  FDAT_ACT = FP002
+  BAS(#CP_PARAMS, gArcBasVelDefinition)
+  SET_CD_PARAMS (0)
+  TRIGGER WHEN PATH = ArcGetPath(#ArcOffBefore, L1_WDAT02_01_050) DELAY = 0 DO ArcMainNG(#ArcOffBeforeOffStd, L1_WDAT02_01_050, WP002) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#ArcOffBefore2, L1_WDAT02_01_050) DELAY = 0 DO ArcMainNG(#ArcOffBeforeOffStd2, L1_WDAT02_01_050, WP002) PRIO = -1
+  TRIGGER WHEN PATH = ArcGetPath(#OnTheFlyArcOff, L1_WDAT02_01_050) DELAY = 0 DO ArcMainNG(#ArcOffMoveStd, L1_WDAT02_01_050, WP002) PRIO = -1
+  ArcMainNG(#ArcOffBeforeMoveStd, L1_WDAT02_01_050, WP002)
+  LIN AmlGetPos(XP002, LayerOffset1, WP002, AmlInfo, )
+  ArcMainNG(#ArcOffAfterMoveStd, L1_WDAT02_01_050, WP002)
+;ENDFOLD
+;FOLD LayerEnd1 ;%{H}
+  AmlBlockCaseEnd(gAmlActLayer, AmlInfo)
+;ENDFOLD LayerEnd1
+;ENDFOLD End Layer 1 ;%{V}
+;FOLD BlockEnd ;%{H}
+DEFAULT
+  AmlBlockDefault(gAmlActLayer, AmlInfo)
+ENDSWITCH
+AmlBlockEnd(gAmlActLayer, AmlInfo)
+;ENDFOLD End BlockEnd
+;ENDFOLD End ArcTech Multilayer Block ;%{V}
+END
